@@ -8,5 +8,6 @@
 const SUPABASE_URL = "https://fujpyzebrxzboxirtjem.supabase.co";
 const SUPABASE_KEY = "sb_publishable_UtkvwRST222Zv6h7-QfvpA_CYD_gGk5";
 
-// Cliente global que usan los demás archivos (auth.js, registro.js, etc.)
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Nombramos nuestro cliente "db" para NO chocar con la variable global
+// "supabase" que crea la librería del CDN.
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

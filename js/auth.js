@@ -7,7 +7,7 @@ const REDIRECT_URL = "https://journal-trading-puce.vercel.app/";
 
 // --- Iniciar sesión con Google ---
 async function loginConGoogle() {
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { error } = await db.auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: REDIRECT_URL }
   });
@@ -20,13 +20,13 @@ async function loginConGoogle() {
 
 // --- Cerrar sesión ---
 async function logout() {
-  await supabase.auth.signOut();
+  await db.auth.signOut();
   location.reload();
 }
 
 // --- Saber quién está logueado (devuelve el usuario o null) ---
 async function usuarioActual() {
-  const { data } = await supabase.auth.getUser();
+  const { data } = await db.auth.getUser();
   return data?.user || null;
 }
 
@@ -54,7 +54,7 @@ async function protegerApp() {
 }
 
 // --- Reacciona a cambios de sesión (login/logout) automáticamente ---
-supabase.auth.onAuthStateChange(() => { protegerApp(); });
+db.auth.onAuthStateChange(() => { protegerApp(); });
 
 // --- Al cargar la página, decide qué mostrar ---
 document.addEventListener("DOMContentLoaded", protegerApp);
