@@ -145,6 +145,19 @@
 </style>
 </head>
 <body>
+
+<!-- Pantalla de login (se ve sin sesión) -->
+<div id="pantalla-login" style="display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:24px">
+  <h1 style="color:#d1d4dc">Bitácora de Trading</h1>
+  <p style="color:#f5b041;font-size:18px">Hoy, 1% mejor que ayer.</p>
+  <button onclick="loginConGoogle()" style="background:#fff;color:#111;border:none;border-radius:10px;padding:14px 22px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px">
+    <img src="https://www.google.com/favicon.ico" width="20" height="20" alt="">
+    Entrar con Google
+  </button>
+</div>
+
+<!-- La app (se ve con sesión) -->
+<div id="app" style="display:none">
 <div class="wrap">
 
   <!-- ===== VISTA INICIO ===== -->
@@ -638,5 +651,11 @@
   const f=new Date();
   document.getElementById('fecha-hoy').textContent=f.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})+' · NQ Futures · Sesión Nueva York';
 </script>
+</div><!-- /#app -->
+
+<!-- Login: librería + nuestros archivos (este orden) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
 </body>
 </html>
