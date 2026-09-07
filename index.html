@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora NQ</title>
+<style>
+  :root{
+    --bg:#131722;        /* fondo TradingView */
+    --panel:#1c2431;     /* tarjetas */
+    --panel-2:#232d3d;   /* tarjetas internas */
+    --line:#2a3446;      /* bordes */
+    --txt:#d1d4dc;       /* texto principal */
+    --muted:#787b86;     /* texto secundario */
+    --up:#26a69a;        /* verde TV */
+    --down:#ef5350;      /* rojo TV */
+    --accent:#2962ff;    /* azul TV, para acciones */
+    --gold:#f5b041;      /* racha / disciplina */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px;line-height:1.5;padding-bottom:40px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px}
+  h1{font-size:20px;font-weight:600;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  .welcome{
+    color:var(--gold);font-size:18px;font-weight:500;margin-top:10px;
+    line-height:1.4;letter-spacing:.2px;
+  }
+
+  /* --- PANEL INICIO --- */
+  .home{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .streak{
+    background:linear-gradient(135deg,#1c2431,#212c3d);
+    border:1px solid var(--line);border-radius:14px;padding:22px 20px;
+    display:flex;align-items:center;gap:18px;
+  }
+  .streak-num{font-size:46px;font-weight:700;color:var(--gold);line-height:1;min-width:70px;text-align:center}
+  .streak-txt strong{display:block;font-size:16px;margin-bottom:3px}
+  .streak-txt span{color:var(--muted);font-size:13px}
+  .focus{
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:10px;padding:14px 16px;
+  }
+  .focus .label{color:var(--muted);font-size:12px;margin-bottom:4px}
+  .focus .body{font-size:15px;font-style:italic}
+  .cta{
+    background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:16px;font-size:16px;font-weight:600;cursor:pointer;width:100%;
+    transition:background .15s;
+  }
+  .cta:hover{background:#1e4fd6}
+
+  /* --- ETIQUETAS DE PASO --- */
+  .step-label{
+    font-size:13px;font-weight:600;color:var(--muted);
+    margin:24px 0 10px;padding-left:2px;
+  }
+
+  /* --- SECCIONES --- */
+  .section{display:none;margin-top:18px}
+  .section.active{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+  .card h3{font-size:13px;color:var(--muted);font-weight:600;text-transform:none;margin-bottom:14px;letter-spacing:.3px}
+
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input[type=text],textarea,select{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    color:var(--txt);padding:10px 12px;font-size:14px;font-family:inherit;
+  }
+  textarea{resize:vertical;min-height:80px;line-height:1.55}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+  .row{display:flex;gap:12px}
+  .row .field{flex:1}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:20px;
+    padding:7px 14px;font-size:13px;cursor:pointer;color:var(--txt);transition:all .12s;user-select:none;
+  }
+  .chip:hover{border-color:var(--muted)}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .chip.add{color:var(--muted);border-style:dashed}
+  .chip.up.on{background:var(--up);border-color:var(--up)}
+  .chip.down.on{background:var(--down);border-color:var(--down)}
+  .chip.acct.on{background:var(--gold);border-color:var(--gold);color:#241c04}
+
+  /* resultado seg */
+  .seg{display:flex;gap:8px}
+  .seg .chip{flex:1;text-align:center}
+
+  /* operación bloque */
+  .op{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px;background:var(--panel-2)}
+  .op-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .op-head strong{font-size:14px}
+  .op-head .r{font-size:13px;color:var(--muted)}
+  .drop{
+    border:1.5px dashed var(--line);border-radius:8px;padding:22px;text-align:center;
+    color:var(--muted);font-size:13px;cursor:pointer;background:rgba(0,0,0,.12);
+  }
+  .addop{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:8px;padding:11px;width:100%;cursor:pointer;font-size:13px}
+
+  .save{background:var(--up);color:#04211d;border:none;border-radius:10px;padding:14px;font-weight:700;width:100%;cursor:pointer;font-size:15px;margin-top:4px}
+
+  /* preguntas */
+  .q{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+  .q .qt{font-size:14px;margin-bottom:6px}
+  .q .qa{font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+  .q .pending{color:var(--gold);font-size:12px}
+
+  .back{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;margin-bottom:8px;padding:0}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+  .hidden{display:none}
+
+  /* --- ESTADÍSTICAS --- */
+  .statnav{display:flex;gap:4px;margin:18px 0 4px;background:var(--panel);padding:4px;border-radius:10px;border:1px solid var(--line)}
+  .statbtn{flex:1;text-align:center;padding:9px;border-radius:7px;cursor:pointer;color:var(--muted);font-size:14px;user-select:none}
+  .statbtn.on{background:var(--panel-2);color:var(--txt)}
+  .statview{margin-top:14px}
+  .mini{flex:1;text-align:center;margin-bottom:0;padding:16px 8px}
+  .big{font-size:30px;font-weight:700}
+  .big.up{color:var(--up)} .big.gold{color:var(--gold)} .big.down{color:var(--down)}
+  .cap{color:var(--muted);font-size:12px;margin-top:4px}
+  .week{display:flex;justify-content:space-between;gap:6px;margin-bottom:12px}
+  .week .d{flex:1;text-align:center}
+  .dot{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:12px;color:#0d1017;font-weight:600}
+  i.dot{width:12px;height:12px;margin-right:5px;vertical-align:middle}
+  .dot.ok{background:var(--up)} .dot.no{background:var(--down)} .dot.hold{background:var(--gold)} .dot.off{background:var(--panel-2);color:var(--muted)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .legend span{display:flex;align-items:center}
+  .bar{display:flex;justify-content:space-between;font-size:13px;margin:10px 0 4px}
+  .bar em{color:var(--muted);font-style:normal}
+  .track{height:6px;background:var(--panel-2);border-radius:3px;overflow:hidden}
+  .track div{height:100%;background:var(--accent);border-radius:3px}
+  .acctrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:12px}
+  .acctrow:last-of-type{border-bottom:none}
+  .ministate{width:auto;font-size:13px;padding:7px 10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== VISTA INICIO ===== -->
+  <div id="view-home">
+    <h1>Hola, <span id="nombre" onclick="editarNombre()" style="cursor:pointer;border-bottom:1px dashed var(--muted)">trader</span></h1>
+    <div class="welcome">Hoy, 1% mejor que ayer.</div>
+
+    <div class="field" style="margin-top:14px">
+      <label>Tu nombre</label>
+      <input type="text" placeholder="Escribe tu nombre" oninput="document.getElementById('nombre').textContent=this.value||'trader'">
+    </div>
+
+    <div class="home">
+      <div class="streak">
+        <div class="streak-num">4</div>
+        <div class="streak-txt">
+          <strong>Días respetando tu plan</strong>
+          <span>Tu progreso real no es cuánto ganaste. Es cuántas veces te respetaste.</span>
+        </div>
+      </div>
+
+      <div class="focus">
+        <div class="label">Tu foco de hoy — lo escribiste ayer</div>
+        <div class="body">"Debo confiar en mi análisis, no mover la operación ya que esto me está perjudicando en las ganancias."</div>
+      </div>
+
+      <button class="cta" onclick="go('registro')">Registrar hoy →</button>
+
+      <div style="display:flex;gap:12px">
+        <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('preguntas')">Mis preguntas</button>
+        <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('stats')">Estadísticas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VISTA REGISTRO ===== -->
+  <div id="view-registro" class="hidden">
+    <button class="back" onclick="go('home')">← Inicio</button>
+    <h1>Registro del día</h1>
+    <div class="sub" id="fecha-hoy"></div>
+
+    <!-- 1. ANTES — pre-análisis, SIEMPRE visible -->
+    <div class="step-label" style="margin-top:20px">1 · Antes — análisis pre-sesión</div>
+
+    <div class="card">
+      <h3>Rutina previa — antes de mirar el gráfico</h3>
+      <div class="chips" id="rutina-chips">
+        <span class="chip" onclick="pick(this)">Estiramientos</span>
+        <span class="chip" onclick="pick(this)">Respiración</span>
+        <span class="chip" onclick="pick(this)">Ancla</span>
+        <span class="chip" onclick="pick(this)">Afirmaciones</span>
+        <span class="chip" onclick="pick(this)">Visualización</span>
+        <span class="chip" onclick="pick(this)">Reglas en voz alta</span>
+        <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+      </div>
+      <div class="hint" style="margin-top:10px">Marca lo que hiciste. Toca "editar" para ajustar tu rutina a la tuya. <span onclick="toggleDel('rutina-chips',this)" style="color:var(--accent);cursor:pointer">editar</span></div>
+    </div>
+
+    <div class="section active" id="s-antes">
+      <div class="card">
+        <h3>Análisis pre-sesión</h3>
+        <div class="row">
+          <div class="field">
+            <label>Sesgo del día</label>
+            <select><option>Compra</option><option>Venta</option><option>No claro</option></select>
+          </div>
+          <div class="field">
+            <label>Estructura 4H / 1H</label>
+            <select><option>Alcista</option><option>Bajista</option><option>Rango</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Escenario principal</label>
+          <input type="text" placeholder="Ej. Venta desde rango superior">
+        </div>
+        <div class="field">
+          <label>Escenario secundario</label>
+          <input type="text" placeholder="Ej. Compra si rompe estructura">
+        </div>
+        <div class="field">
+          <label>Estado emocional al iniciar</label>
+          <div class="chips">
+            <span class="chip" onclick="pick(this)">Calma</span>
+            <span class="chip" onclick="pick(this)">Miedo</span>
+            <span class="chip" onclick="pick(this)">Ansiedad</span>
+            <span class="chip" onclick="pick(this)">Confianza</span>
+            <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+          </div>
+        </div>
+      </div>
+      <div class="hint">El análisis va siempre, operes o no.</div>
+    </div>
+
+    <!-- 2. ¿OPERÉ HOY? — después del análisis -->
+    <div class="step-label">2 · ¿Operé hoy?</div>
+    <div class="card" id="filtro">
+      <div class="seg">
+        <span class="chip up" onclick="opere(true,this)">Sí operé</span>
+        <span class="chip" onclick="opere(false,this)">No operé</span>
+      </div>
+      <div id="noopere" class="hidden" style="margin-top:16px">
+        <div class="field">
+          <label>¿Por qué no? — contenerte con criterio también es disciplina</label>
+          <div class="chips">
+            <span class="chip" onclick="pickOne(this)">No había setup claro</span>
+            <span class="chip" onclick="pickOne(this)">Estado emocional</span>
+            <span class="chip" onclick="pickOne(this)">Noticias / alto impacto</span>
+            <span class="chip" onclick="pickOne(this)">Ya cumplí mi objetivo</span>
+            <span class="chip" onclick="pickOne(this)">Regla de la cuenta</span>
+            <span class="chip" onclick="pickOne(this)">Día feriado</span>
+            <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nota (opcional)</label>
+          <textarea placeholder="Ej. El mercado estaba acumulativo y decidí no forzar."></textarea>
+        </div>
+        <button class="save" onclick="alert('Día guardado como: NO operé (con criterio). Suma a tu racha de disciplina.')">Guardar día</button>
+        <div class="hint" style="margin-top:10px">No operar con criterio suma a tu racha.</div>
+      </div>
+    </div>
+
+    <!-- FLUJO SÍ OPERÉ: Durante + Después -->
+    <div id="flujo-opere" class="hidden">
+
+    <!-- DURANTE -->
+    <div class="step-label">3 · Durante — la operación</div>
+    <div class="section active" id="s-durante">
+      <div id="ops">
+        <div class="op">
+          <div class="op-head"><strong>Operación 1</strong><span class="r">R: —</span></div>
+          <div class="field">
+            <label>Cuenta</label>
+            <div class="chips">
+              <span class="chip acct" onclick="pickOne(this)">Lucid Flex 0258</span>
+              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Setup</label>
+            <div class="chips">
+              <span class="chip" onclick="pick(this)">CRT</span>
+              <span class="chip" onclick="pick(this)">CHOCH</span>
+              <span class="chip" onclick="pick(this)">FVG</span>
+              <span class="chip" onclick="pick(this)">BOS / ruptura</span>
+              <span class="chip" onclick="pick(this)">Divergencia</span>
+              <span class="chip" onclick="pick(this)">Liquidez</span>
+              <span class="chip" onclick="pick(this)">Volumen</span>
+              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Razón técnica — explícala</label>
+            <textarea placeholder="Qué viste, por qué entraste, cómo la gestionaste..."></textarea>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>Resultado</label>
+              <div class="seg">
+                <span class="chip up" onclick="pickOne(this)">Ganó</span>
+                <span class="chip down" onclick="pickOne(this)">Perdió</span>
+                <span class="chip" onclick="pickOne(this)">BE</span>
+              </div>
+            </div>
+            <div class="field" style="max-width:110px">
+              <label>Ratio / R</label>
+              <input type="text" placeholder="+2 · -1 · 0">
+            </div>
+          </div>
+          <div class="field">
+            <label>Pantallazo del gráfico</label>
+            <div class="drop" onclick="alert('En la app real: pega o sube tu captura aquí.')">Toca para pegar o subir la captura</div>
+          </div>
+          <div class="field">
+            <label>¿Rompí alguna regla?</label>
+            <div class="chips">
+              <span class="chip" onclick="pickOne(this)">Ninguna</span>
+              <span class="chip" onclick="pickOne(this)">Entré por FOMO</span>
+              <span class="chip" onclick="pickOne(this)">Cerré por miedo</span>
+              <span class="chip" onclick="pickOne(this)">Sobreoperación</span>
+              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Gestión de la operación</label>
+            <div class="chips">
+              <span class="chip" onclick="pick(this)">Respeté SL y TP</span>
+              <span class="chip" onclick="pick(this)">Moví el SL</span>
+              <span class="chip" onclick="pick(this)">Aumenté el TP</span>
+              <span class="chip" onclick="pick(this)">Perseguí el precio</span>
+              <span class="chip" onclick="pick(this)">Cerré antes de tiempo</span>
+              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+            </div>
+            <div class="hint">Cómo manejaste la operación una vez abierta.</div>
+          </div>
+        </div>
+      </div>
+      <button class="addop" onclick="addOp()">＋ Añadir operación</button>
+    </div>
+
+    <!-- DESPUES -->
+    <div class="step-label">4 · Después — retroalimentación</div>
+    <div class="section active" id="s-despues">
+      <div class="card">
+        <h3>Retroalimentación</h3>
+        <div class="row">
+          <div class="field">
+            <label>¿Respeté mi límite de pérdida diario?</label>
+            <div class="seg">
+              <span class="chip up" onclick="pickOne(this)">Sí</span>
+              <span class="chip down" onclick="pickOne(this)">No</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>¿Cumplí mi objetivo del día?</label>
+            <div class="seg">
+              <span class="chip up" onclick="pickOne(this)">Sí</span>
+              <span class="chip" onclick="pickOne(this)">No</span>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>¿El sesgo estaba correcto? ¿Por qué?</label>
+          <textarea></textarea>
+        </div>
+        <div class="field">
+          <label>¿La entrada tenía razón técnica clara?</label>
+          <textarea></textarea>
+        </div>
+        <div class="field">
+          <label>¿Qué hice bien hoy?</label>
+          <textarea></textarea>
+        </div>
+        <div class="field">
+          <label>¿Qué mejoraré mañana? (una sola cosa concreta)</label>
+          <input type="text" placeholder="Solo una cosa.">
+          <div class="hint">Esto es lo que te recibe mañana en el inicio.</div>
+        </div>
+        <div class="field">
+          <label>Estado emocional al cerrar</label>
+          <div class="chips">
+            <span class="chip" onclick="pick(this)">Calma</span>
+            <span class="chip" onclick="pick(this)">Frustración</span>
+            <span class="chip" onclick="pick(this)">Satisfacción</span>
+            <span class="chip" onclick="pick(this)">Cansancio</span>
+            <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Reencuadre del SL — ¿volverías a poner esta operación con la misma información?</label>
+          <textarea></textarea>
+        </div>
+      </div>
+      <button class="save" onclick="guardarDia()">Guardar día</button>
+    </div>
+    </div><!-- /flujo-opere -->
+  </div>
+
+  <!-- ===== VISTA PREGUNTAS ===== -->
+  <div id="view-preguntas" class="hidden">
+    <button class="back" onclick="go('home')">← Inicio</button>
+    <h1>Mis preguntas</h1>
+    <div class="sub">El espacio para interrogar tus operaciones. Anota la duda hoy; la conclusión, cuando la resuelvas.</div>
+    <div style="margin-top:18px">
+      <div class="q">
+        <div class="qt">¿Por qué cierro cuando el precio aún puede alcanzar más rangos?</div>
+        <div class="qa pending">Sin conclusión aún <span onclick="responder(this)" style="color:var(--accent);cursor:pointer;margin-left:6px">＋ agregar respuesta</span></div>
+      </div>
+      <div class="q">
+        <div class="qt">¿Dónde debo poner el SL cuando la entrada es apoyo en FVG: en la vela del FVG o estructural?</div>
+        <div class="qa">Conclusión: estructural cuando hay noticia cerca — el SL no se alcanza tan rápido.</div>
+      </div>
+      <div class="field" style="margin-top:6px">
+        <input type="text" placeholder="Escribe una nueva pregunta...">
+      </div>
+      <button class="addop" onclick="alert('En la app real: la pregunta se guarda y puedes ligarla a una operación concreta.')">＋ Añadir pregunta</button>
+    </div>
+  </div>
+
+  <!-- ===== VISTA ESTADÍSTICAS ===== -->
+  <div id="view-stats" class="hidden">
+    <button class="back" onclick="go('home')">← Inicio</button>
+    <h1>Tu progreso</h1>
+    <div class="sub">Cada registro te muestra quién eres como trader.</div>
+
+    <div class="statnav">
+      <span class="statbtn on" onclick="stab('sem',this)">Semana</span>
+      <span class="statbtn" onclick="stab('mes',this)">Mes</span>
+      <span class="statbtn" onclick="stab('cta',this)">Cuentas</span>
+    </div>
+
+    <!-- SEMANA -->
+    <div class="statview" id="st-sem">
+      <div style="display:flex;gap:12px">
+        <div class="card mini"><div class="big up">83%</div><div class="cap">seguí mi plan</div></div>
+        <div class="card mini"><div class="big gold">4</div><div class="cap">racha (días)</div></div>
+        <div class="card mini"><div class="big">6</div><div class="cap">días registrados</div></div>
+      </div>
+      <div class="card">
+        <h3>Disciplina de la semana</h3>
+        <div class="week">
+          <div class="d"><span class="dot ok">L</span></div>
+          <div class="d"><span class="dot ok">M</span></div>
+          <div class="d"><span class="dot no">X</span></div>
+          <div class="d"><span class="dot ok">J</span></div>
+          <div class="d"><span class="dot ok">V</span></div>
+          <div class="d"><span class="dot hold">S</span></div>
+          <div class="d"><span class="dot off">D</span></div>
+        </div>
+        <div class="legend"><span><i class="dot ok"></i>seguí plan</span><span><i class="dot no"></i>rompí regla</span><span><i class="dot hold"></i>no operé (criterio)</span></div>
+      </div>
+      <div class="card">
+        <h3>Días con rutina previa completa</h3>
+        <div class="bar"><span>Rutina completa</span><em>4 de 6</em></div><div class="track"><div style="width:66%"></div></div>
+        <div class="hint" style="margin-top:10px">La rutina previa suele cambiar cómo operas. Vale la pena verla.</div>
+      </div>
+      <div class="card">
+        <h3>Setup que más usé esta semana</h3>
+        <div class="bar"><span>FVG</span><em>4</em></div><div class="track"><div style="width:80%"></div></div>
+        <div class="bar"><span>Liquidez</span><em>2</em></div><div class="track"><div style="width:40%"></div></div>
+        <div class="bar"><span>CHOCH</span><em>1</em></div><div class="track"><div style="width:20%"></div></div>
+      </div>
+      <div class="card">
+        <h3>Regla que más rompí esta semana</h3>
+        <div style="font-size:15px;margin-bottom:4px">Cerré por miedo — 2 veces</div>
+        <div class="hint">Es el patrón de la semana. Nombrarlo ya es empezar a corregirlo.</div>
+      </div>
+      <div class="card">
+        <h3>Tu foco de la semana</h3>
+        <div class="hint">Lo que decidiste mejorar. Tenerlo presente ya es trabajarlo.</div>
+      </div>
+    </div>
+
+    <!-- MES -->
+    <div class="statview hidden" id="st-mes">
+      <div style="display:flex;gap:12px">
+        <div class="card mini"><div class="big up">76%</div><div class="cap">seguí mi plan</div></div>
+        <div class="card mini"><div class="big gold">+9%</div><div class="cap">vs mes pasado</div></div>
+        <div class="card mini"><div class="big">21</div><div class="cap">días activos</div></div>
+      </div>
+      <div class="card">
+        <h3>Tu disciplina, semana a semana</h3>
+        <div class="bar"><span>Semana 1</span><em>58%</em></div><div class="track"><div style="width:58%"></div></div>
+        <div class="bar"><span>Semana 2</span><em>71%</em></div><div class="track"><div style="width:71%"></div></div>
+        <div class="bar"><span>Semana 3</span><em>80%</em></div><div class="track"><div style="width:80%"></div></div>
+        <div class="bar"><span>Semana 4</span><em>83%</em></div><div class="track"><div style="width:83%"></div></div>
+        <div class="hint" style="margin-top:12px">Tu disciplina semana a semana. Lo que importa es la tendencia.</div>
+      </div>
+      <div class="card">
+        <h3>Regla que más rompí este mes</h3>
+        <div style="font-size:15px;margin-bottom:4px">Entré por FOMO — 5 veces</div>
+        <div class="hint">Compara tu regla más rota con la del mes anterior.</div>
+      </div>
+    </div>
+
+    <!-- CUENTAS -->
+    <div class="statview hidden" id="st-cta">
+      <div style="display:flex;gap:12px">
+        <div class="card mini"><div class="big up">0</div><div class="cap">fondeadas</div></div>
+        <div class="card mini"><div class="big gold">1</div><div class="cap">en challenge</div></div>
+        <div class="card mini"><div class="big down">0</div><div class="cap">quemadas</div></div>
+      </div>
+
+      <div class="card">
+        <h3>Cuentas activas</h3>
+        <div class="acctrow">
+          <div><strong>Lucid Flex 0258</strong><div class="cap">Challenge · activa</div></div>
+          <select class="ministate" onchange="estado(this)">
+            <option>Activa</option><option>Pasada / fondeada</option><option>Quemada</option><option>Con retiros</option>
+          </select>
+        </div>
+        <button class="addop" onclick="alert('En la app real: añades la cuenta que compres hoy o la fondeada cuando llegue.')">＋ Añadir cuenta</button>
+      </div>
+
+      <div class="card">
+        <h3>Retiros de cuentas fondeadas</h3>
+        <div class="acctrow" style="opacity:.5"><div><strong>Aún sin retiros</strong><div class="cap">Tu primer retiro se registrará aquí como Retiro 1</div></div></div>
+        <button class="addop" onclick="alert('En la app real: registras Retiro 1, Retiro 2... de cada cuenta fondeada, numerados y con fecha.')">＋ Registrar retiro</button>
+        <div class="hint" style="margin-top:8px">Retiros numerados por cuenta. El monto lo ves en tu plataforma.</div>
+      </div>
+
+      <div class="card">
+        <h3>Historial — tu trayectoria</h3>
+        <div class="hint">Cuentas pasadas, quemadas y retiros — tu trayectoria.</div>
+        <div class="acctrow" style="opacity:.5"><div><strong>Aún sin cuentas cerradas</strong><div class="cap">Tu primera cuenta está en camino</div></div></div>
+      </div>
+    </div>
+
+    <div class="hint" style="text-align:center">Datos de ejemplo. En la app real se calculan solos desde tus registros.</div>
+  </div>
+
+</div>
+
+<script>
+  function go(v){
+    document.querySelectorAll('[id^=view-]').forEach(e=>e.classList.add('hidden'));
+    document.getElementById('view-'+v).classList.remove('hidden');
+    window.scrollTo(0,0);
+  }
+  function stab(v,el){
+    document.querySelectorAll('.statbtn').forEach(b=>b.classList.remove('on'));
+    el.classList.add('on');
+    document.querySelectorAll('.statview').forEach(s=>s.classList.add('hidden'));
+    document.getElementById('st-'+v).classList.remove('hidden');
+  }
+  function estado(sel){
+    const v=sel.value;
+    if(v!=='Activa') alert('En la app real: la cuenta pasa a "'+v+'" y se archiva en tu historial. No se borra — tu trayectoria queda registrada.');
+  }
+  function opere(si,el){
+    el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+    el.classList.add('on');
+    document.getElementById('noopere').classList.toggle('hidden',si);
+    document.getElementById('flujo-opere').classList.toggle('hidden',!si);
+    const target=si?document.getElementById('flujo-opere'):document.getElementById('noopere');
+    setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'start'}),80);
+  }
+  function pick(el){ el.classList.toggle('on'); }         // multi
+  function pickOne(el){                                    // single dentro del grupo
+    el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+    el.classList.add('on');
+  }
+  function editarNombre(){
+    const el=document.getElementById('nombre');
+    const t=prompt('Tu nombre:',el.textContent);
+    if(t) el.textContent=t;
+  }
+  function responder(link){
+    const t=prompt('Tu conclusión:');
+    if(t){const qa=link.parentElement;qa.classList.remove('pending');qa.textContent='Conclusión: '+t;}
+  }
+  function guardarDia(){
+    // ¿rompió alguna regla hoy? (mira los chips "on" del grupo de reglas)
+    let rompio=false, siguioplan=false;
+    document.querySelectorAll('#ops .chip.on').forEach(c=>{
+      const t=c.textContent.trim();
+      if(['Entré por FOMO','Cerré por miedo','Sobreoperación','Moví el SL','Perseguí el precio','Aumenté el TP','Cerré antes de tiempo'].includes(t)) rompio=true;
+      if(t==='Ninguna'||t==='Respeté SL y TP') siguioplan=true;
+    });
+    let frase;
+    if(rompio){
+      frase='Hoy rompiste una regla, y lo anotaste. Ver el error es la mitad del camino. Mañana, 1% mejor.';
+    }else if(siguioplan){
+      frase='Seguiste tu plan hoy. Eso — no el resultado — es lo que te vuelve consistente. Bien hecho.';
+    }else{
+      frase='Día registrado. Cada anotación te conoce un poco más como trader.';
+    }
+    alert(frase+'\n\n(En la app real, aquí se guarda el día en Supabase.)');
+  }
+  function toggleDel(contId,link){
+    const cont=document.getElementById(contId);
+    const editing=cont.classList.toggle('editing');
+    link.textContent=editing?'listo':'editar';
+    cont.querySelectorAll('.chip:not(.add)').forEach(c=>{
+      if(editing){
+        if(!c.querySelector('.x')){
+          const x=document.createElement('span');
+          x.className='x';x.textContent=' ✕';x.style.cssText='margin-left:6px;color:var(--down);cursor:pointer';
+          x.onclick=function(e){e.stopPropagation();c.remove();};
+          c.appendChild(x);c.onclick=null;
+        }
+      }else{
+        const x=c.querySelector('.x');if(x)x.remove();
+        c.onclick=function(){pick(c)};
+      }
+    });
+  }
+  function addChip(el){
+    const t=prompt('Nueva opción:');
+    if(!t) return;
+    const c=document.createElement('span');
+    c.textContent=t;
+    // ¿el grupo usa selección única? (cuenta, resultado, regla) o múltiple (setup, emoción)
+    const single=el.parentElement.querySelector('.chip[onclick*="pickOne"]')!==null;
+    c.className='chip'+(el.classList.contains('acct')||el.parentElement.querySelector('.acct')?' acct':'');
+    c.onclick=single?function(){pickOne(c)}:function(){pick(c)};
+    el.parentElement.insertBefore(c,el);
+  }
+  let opN=1;
+  function addOp(){
+    opN++;
+    const base=document.querySelector('.op');
+    const clone=base.cloneNode(true);
+    clone.querySelector('.op-head strong').textContent='Operación '+opN;
+    clone.querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'));
+    clone.querySelectorAll('textarea,input').forEach(c=>c.value='');
+    document.getElementById('ops').appendChild(clone);
+    clone.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  // fecha
+  const f=new Date();
+  document.getElementById('fecha-hoy').textContent=f.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})+' · NQ Futures · Sesión Nueva York';
+</script>
+</body>
+</html>
