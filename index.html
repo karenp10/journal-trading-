@@ -190,6 +190,22 @@
         <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('preguntas')">Mis preguntas</button>
         <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('stats')">Estadísticas</button>
       </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Mis cuentas</h3>
+        <div id="lista-cuentas"><div class="hint">Cargando...</div></div>
+        <div class="row" style="margin-top:14px">
+          <div class="field" style="flex:2">
+            <label>Nombre de la cuenta</label>
+            <input type="text" id="cta-nombre" placeholder="Ej. Lucid Flex 0258">
+          </div>
+          <div class="field" style="flex:1">
+            <label>Tipo</label>
+            <select id="cta-tipo"><option value="challenge">Challenge</option><option value="fondeada">Fondeada</option></select>
+          </div>
+        </div>
+        <button class="save" onclick="crearCuenta()">Guardar cuenta</button>
+      </div>
     </div>
   </div>
 
@@ -657,5 +673,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/cuentas.js"></script>
 </body>
 </html>
