@@ -238,24 +238,24 @@
         <div class="row">
           <div class="field">
             <label>Sesgo del día</label>
-            <select><option>Compra</option><option>Venta</option><option>No claro</option></select>
+            <select id="f-sesgo"><option>Compra</option><option>Venta</option><option>No claro</option></select>
           </div>
           <div class="field">
             <label>Estructura 4H / 1H</label>
-            <select><option>Alcista</option><option>Bajista</option><option>Rango</option></select>
+            <select id="f-estructura"><option>Alcista</option><option>Bajista</option><option>Rango</option></select>
           </div>
         </div>
         <div class="field">
           <label>Escenario principal</label>
-          <input type="text" placeholder="Ej. Venta desde rango superior">
+          <input type="text" id="f-esc-principal" placeholder="Ej. Venta desde rango superior">
         </div>
         <div class="field">
           <label>Escenario secundario</label>
-          <input type="text" placeholder="Ej. Compra si rompe estructura">
+          <input type="text" id="f-esc-secundario" placeholder="Ej. Compra si rompe estructura">
         </div>
         <div class="field">
           <label>Estado emocional al iniciar</label>
-          <div class="chips">
+          <div class="chips" id="f-emocion-inicio">
             <span class="chip" onclick="pick(this)">Calma</span>
             <span class="chip" onclick="pick(this)">Miedo</span>
             <span class="chip" onclick="pick(this)">Ansiedad</span>
@@ -277,7 +277,7 @@
       <div id="noopere" class="hidden" style="margin-top:16px">
         <div class="field">
           <label>¿Por qué no? — contenerte con criterio también es disciplina</label>
-          <div class="chips">
+          <div class="chips" id="f-motivo-no">
             <span class="chip" onclick="pickOne(this)">No había setup claro</span>
             <span class="chip" onclick="pickOne(this)">Estado emocional</span>
             <span class="chip" onclick="pickOne(this)">Noticias / alto impacto</span>
@@ -289,9 +289,9 @@
         </div>
         <div class="field">
           <label>Nota (opcional)</label>
-          <textarea placeholder="Ej. El mercado estaba acumulativo y decidí no forzar."></textarea>
+          <textarea id="f-nota-no" placeholder="Ej. El mercado estaba acumulativo y decidí no forzar."></textarea>
         </div>
-        <button class="save" onclick="alert('Día guardado como: NO operé (con criterio). Suma a tu racha de disciplina.')">Guardar día</button>
+        <button class="save" onclick="guardarDia()">Guardar día</button>
         <div class="hint" style="margin-top:10px">No operar con criterio suma a tu racha.</div>
       </div>
     </div>
@@ -307,14 +307,14 @@
           <div class="op-head"><strong>Operación 1</strong><span class="r">R: —</span></div>
           <div class="field">
             <label>Cuenta</label>
-            <div class="chips">
+            <div class="chips op-cuenta">
               <span class="chip acct" onclick="pickOne(this)">Lucid Flex 0258</span>
               <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
             </div>
           </div>
           <div class="field">
             <label>Setup</label>
-            <div class="chips">
+            <div class="chips op-setup">
               <span class="chip" onclick="pick(this)">CRT</span>
               <span class="chip" onclick="pick(this)">CHOCH</span>
               <span class="chip" onclick="pick(this)">FVG</span>
@@ -327,12 +327,12 @@
           </div>
           <div class="field">
             <label>Razón técnica — explícala</label>
-            <textarea placeholder="Qué viste, por qué entraste, cómo la gestionaste..."></textarea>
+            <textarea class="op-razon" placeholder="Qué viste, por qué entraste, cómo la gestionaste..."></textarea>
           </div>
           <div class="row">
             <div class="field">
               <label>Resultado</label>
-              <div class="seg">
+              <div class="seg op-resultado">
                 <span class="chip up" onclick="pickOne(this)">Ganó</span>
                 <span class="chip down" onclick="pickOne(this)">Perdió</span>
                 <span class="chip" onclick="pickOne(this)">BE</span>
@@ -340,7 +340,7 @@
             </div>
             <div class="field" style="max-width:110px">
               <label>Ratio / R</label>
-              <input type="text" placeholder="+2 · -1 · 0">
+              <input type="text" class="op-ratio" placeholder="+2 · -1 · 0">
             </div>
           </div>
           <div class="field">
@@ -349,7 +349,7 @@
           </div>
           <div class="field">
             <label>¿Rompí alguna regla?</label>
-            <div class="chips">
+            <div class="chips op-regla">
               <span class="chip" onclick="pickOne(this)">Ninguna</span>
               <span class="chip" onclick="pickOne(this)">Entré por FOMO</span>
               <span class="chip" onclick="pickOne(this)">Cerré por miedo</span>
@@ -359,7 +359,7 @@
           </div>
           <div class="field">
             <label>Gestión de la operación</label>
-            <div class="chips">
+            <div class="chips op-gestion">
               <span class="chip" onclick="pick(this)">Respeté SL y TP</span>
               <span class="chip" onclick="pick(this)">Moví el SL</span>
               <span class="chip" onclick="pick(this)">Aumenté el TP</span>
@@ -382,14 +382,14 @@
         <div class="row">
           <div class="field">
             <label>¿Respeté mi límite de pérdida diario?</label>
-            <div class="seg">
+            <div class="seg" id="f-limite">
               <span class="chip up" onclick="pickOne(this)">Sí</span>
               <span class="chip down" onclick="pickOne(this)">No</span>
             </div>
           </div>
           <div class="field">
             <label>¿Cumplí mi objetivo del día?</label>
-            <div class="seg">
+            <div class="seg" id="f-objetivo">
               <span class="chip up" onclick="pickOne(this)">Sí</span>
               <span class="chip" onclick="pickOne(this)">No</span>
             </div>
@@ -397,24 +397,24 @@
         </div>
         <div class="field">
           <label>¿El sesgo estaba correcto? ¿Por qué?</label>
-          <textarea></textarea>
+          <textarea id="f-sesgo-ok"></textarea>
         </div>
         <div class="field">
           <label>¿La entrada tenía razón técnica clara?</label>
-          <textarea></textarea>
+          <textarea id="f-entrada-ok"></textarea>
         </div>
         <div class="field">
           <label>¿Qué hice bien hoy?</label>
-          <textarea></textarea>
+          <textarea id="f-bien"></textarea>
         </div>
         <div class="field">
           <label>¿Qué mejoraré mañana? (una sola cosa concreta)</label>
-          <input type="text" placeholder="Solo una cosa.">
+          <input type="text" id="f-mejorar" placeholder="Solo una cosa.">
           <div class="hint">Esto es lo que te recibe mañana en el inicio.</div>
         </div>
         <div class="field">
           <label>Estado emocional al cerrar</label>
-          <div class="chips">
+          <div class="chips" id="f-emocion-cierre">
             <span class="chip" onclick="pick(this)">Calma</span>
             <span class="chip" onclick="pick(this)">Frustración</span>
             <span class="chip" onclick="pick(this)">Satisfacción</span>
@@ -424,7 +424,7 @@
         </div>
         <div class="field">
           <label>Reencuadre del SL — ¿volverías a poner esta operación con la misma información?</label>
-          <textarea></textarea>
+          <textarea id="f-reencuadre"></textarea>
         </div>
       </div>
       <button class="save" onclick="guardarDia()">Guardar día</button>
@@ -605,7 +605,7 @@
     const t=prompt('Tu conclusión:');
     if(t){const qa=link.parentElement;qa.classList.remove('pending');qa.textContent='Conclusión: '+t;}
   }
-  function guardarDia(){
+  function fraseDelDia(){
     // ¿rompió alguna regla hoy? (mira los chips "on" del grupo de reglas)
     let rompio=false, siguioplan=false;
     document.querySelectorAll('#ops .chip.on').forEach(c=>{
@@ -613,15 +613,9 @@
       if(['Entré por FOMO','Cerré por miedo','Sobreoperación','Moví el SL','Perseguí el precio','Aumenté el TP','Cerré antes de tiempo'].includes(t)) rompio=true;
       if(t==='Ninguna'||t==='Respeté SL y TP') siguioplan=true;
     });
-    let frase;
-    if(rompio){
-      frase='Hoy rompiste una regla, y lo anotaste. Ver el error es la mitad del camino. Mañana, 1% mejor.';
-    }else if(siguioplan){
-      frase='Seguiste tu plan hoy. Eso — no el resultado — es lo que te vuelve consistente. Bien hecho.';
-    }else{
-      frase='Día registrado. Cada anotación te conoce un poco más como trader.';
-    }
-    alert(frase+'\n\n(En la app real, aquí se guarda el día en Supabase.)');
+    if(rompio) return 'Hoy rompiste una regla, y lo anotaste. Ver el error es la mitad del camino. Mañana, 1% mejor.';
+    if(siguioplan) return 'Seguiste tu plan hoy. Eso — no el resultado — es lo que te vuelve consistente. Bien hecho.';
+    return 'Día registrado. Cada anotación te conoce un poco más como trader.';
   }
   function toggleDel(contId,link){
     const cont=document.getElementById(contId);
@@ -674,5 +668,6 @@
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/cuentas.js"></script>
+<script src="js/registro.js"></script>
 </body>
 </html>
