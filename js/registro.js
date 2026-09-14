@@ -118,6 +118,12 @@ async function guardarDia() {
       };
       // solo guarda la operación si tiene cuenta seleccionada
       if (operacion.cuenta_id) {
+        // Subir captura si hay una seleccionada
+        const fileInput = op.querySelector('.op-captura');
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          const url = await subirCaptura(fileInput.files[0], user.id);
+          if (url) operacion.captura_url = url;
+        }
         const { error: errOp } = await db.from("operaciones").insert(operacion);
         if (errOp) console.error("Error al guardar operación:", errOp.message);
       }
@@ -154,3 +160,27 @@ function mapResultado(txt) {
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(cargarCuentasEnOps, 700);
 });
+
+// --- Subir una captura al bucket "capturas" y devolver URL firmada ---
+async function subirCaptura(file, userId) {
+  try {
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    // Ruta: {userId}/{timestamp}.ext  → la política exige que la 1a carpeta sea el userId
+    const ruta = userId + "/" + Date.now() + "." + ext;
+
+    const { error: upErr } = await db.storage
+      .from("capturas")
+      .upload(ruta, file, { upsert: false });
+    if (upErr) { console.error("Error subiendo captura:", upErr.message); return null; }
+
+    // URL firmada válida por 10 años (bucket privado)
+    const { data, error: urlErr } = await db.storage
+      .from("capturas")
+      .createSignedUrl(ruta, 60 * 60 * 24 * 3650);
+    if (urlErr) { console.error("Error URL:", urlErr.message); return ruta; }
+    return data.signedUrl;
+  } catch (e) {
+    console.error("Fallo subirCaptura:", e);
+    return null;
+  }
+}
