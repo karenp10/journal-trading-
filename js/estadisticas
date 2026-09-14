@@ -1,0 +1,71 @@
+// ============================================================
+//  estadisticas.js — Calcula métricas reales desde la BD
+//  Depende de supabase.js ("db") y auth.js.
+// ============================================================
+
+// --- Cargar estadísticas reales al abrir la vista de stats ---
+async function cargarEstadisticas() {
+  const { data: dias, error } = await db
+    .from("dias")
+    .select("*")
+    .order("fecha", { ascending: false });
+
+  if (error) { console.error("Error stats:", error.message); return; }
+  if (!dias) return;
+
+  // Días registrados
+  const totalDias = dias.length;
+  setTxt("stat-dias", totalDias);
+
+  // % que siguió el plan: días donde NO rompió regla (o no operó con criterio)
+  // Traemos operaciones para saber si rompió reglas
+  const { data: ops } = await db.from("operaciones").select("dia_id, regla_rota");
+  const reglaPorDia = {};
+  (ops || []).forEach(o => {
+    if (o.regla_rota && o.regla_rota !== "Ninguna") reglaPorDia[o.dia_id] = true;
+  });
+
+  let conPlan = 0;
+  dias.forEach(d => {
+    if (d.opero === false) conPlan++;            // no operar con criterio = disciplina
+    else if (!reglaPorDia[d.id]) conPlan++;      // operó sin romper regla
+  });
+  const pct = totalDias ? Math.round(100 * conPlan / totalDias) : 0;
+  setTxt("stat-plan", pct + "%");
+
+  // Racha: días consecutivos (hacia atrás desde el más reciente) con plan cumplido
+  let racha = 0;
+  for (const d of dias) {  // ya vienen de más reciente a más antiguo
+    const cumplio = (d.opero === false) || !reglaPorDia[d.id];
+    if (cumplio) racha++;
+    else break;
+  }
+  setTxt("stat-racha", racha);
+
+  // También actualiza la racha del inicio
+  setTxt("racha-inicio", racha);
+}
+
+function setTxt(id, v) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = v;
+}
+
+// --- Racha en la pantalla de inicio (se llama al cargar) ---
+async function cargarRachaInicio() {
+  const { data: dias } = await db.from("dias").select("*").order("fecha", { ascending: false });
+  if (!dias || !dias.length) { setTxt("racha-inicio", 0); return; }
+  const { data: ops } = await db.from("operaciones").select("dia_id, regla_rota");
+  const reglaPorDia = {};
+  (ops || []).forEach(o => { if (o.regla_rota && o.regla_rota !== "Ninguna") reglaPorDia[o.dia_id] = true; });
+  let racha = 0;
+  for (const d of dias) {
+    const cumplio = (d.opero === false) || !reglaPorDia[d.id];
+    if (cumplio) racha++; else break;
+  }
+  setTxt("racha-inicio", racha);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(cargarRachaInicio, 900);
+});
