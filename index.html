@@ -197,7 +197,7 @@
 
     <div class="home">
       <div class="streak">
-        <div class="streak-num">4</div>
+        <div class="streak-num" id="racha-inicio">—</div>
         <div class="streak-txt">
           <strong>Días respetando tu plan</strong>
           <span>Tu progreso real no es cuánto ganaste. Es cuántas veces te respetaste.</span>
@@ -372,7 +372,10 @@
           </div>
           <div class="field">
             <label>Pantallazo del gráfico</label>
-            <div class="drop" onclick="alert('En la app real: pega o sube tu captura aquí.')">Toca para pegar o subir la captura</div>
+            <input type="file" accept="image/*" class="op-captura" style="display:none" onchange="previsualizar(this)">
+            <div class="drop" onclick="this.previousElementSibling.click()">Toca para subir la captura</div>
+            <img class="op-preview" style="display:none;max-width:100%;border-radius:8px;margin-top:8px">
+            <div class="op-captura-estado hint" style="display:none"></div>
           </div>
           <div class="field">
             <label>¿Rompí alguna regla?</label>
@@ -495,9 +498,9 @@
     <!-- SEMANA -->
     <div class="statview" id="st-sem">
       <div style="display:flex;gap:12px">
-        <div class="card mini"><div class="big up">83%</div><div class="cap">seguí mi plan</div></div>
-        <div class="card mini"><div class="big gold">4</div><div class="cap">racha (días)</div></div>
-        <div class="card mini"><div class="big">6</div><div class="cap">días registrados</div></div>
+        <div class="card mini"><div class="big up" id="stat-plan">—</div><div class="cap">seguí mi plan</div></div>
+        <div class="card mini"><div class="big gold" id="stat-racha">—</div><div class="cap">racha (días)</div></div>
+        <div class="card mini"><div class="big" id="stat-dias">—</div><div class="cap">días registrados</div></div>
       </div>
       <div class="card">
         <h3>Disciplina de la semana</h3>
@@ -627,11 +630,19 @@
       document.getElementById('btn-tema').textContent='☀️ Claro';
     }
   }
+  function previsualizar(input){
+    const f=input.files[0];
+    if(!f) return;
+    const img=input.parentElement.querySelector('.op-preview');
+    img.src=URL.createObjectURL(f);
+    img.style.display='block';
+  }
   function go(v){
     document.querySelectorAll('[id^=view-]').forEach(e=>e.classList.add('hidden'));
     document.getElementById('view-'+v).classList.remove('hidden');
     window.scrollTo(0,0);
     if(v==='historial' && typeof cargarHistorial==='function') cargarHistorial();
+    if(v==='stats' && typeof cargarEstadisticas==='function') cargarEstadisticas();
   }
   function stab(v,el){
     document.querySelectorAll('.statbtn').forEach(b=>b.classList.remove('on'));
@@ -730,5 +741,6 @@
 <script src="js/cuentas.js"></script>
 <script src="js/registro.js"></script>
 <script src="js/historial.js"></script>
+<script src="js/estadisticas.js"></script>
 </body>
 </html>
