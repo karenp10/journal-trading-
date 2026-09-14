@@ -17,6 +17,19 @@
     --accent:#2962ff;    /* azul TV, para acciones */
     --gold:#f5b041;      /* racha / disciplina */
   }
+  /* Tema claro: se activa con <body data-tema="claro"> */
+  body[data-tema="claro"]{
+    --bg:#f4f6fa;        /* fondo claro */
+    --panel:#ffffff;     /* tarjetas */
+    --panel-2:#eef1f6;   /* tarjetas internas */
+    --line:#d8dee9;      /* bordes */
+    --txt:#1c2431;       /* texto principal */
+    --muted:#6b7280;     /* texto secundario */
+    --up:#0f9b8e;        /* verde algo más oscuro para contraste */
+    --down:#e03e3e;      /* rojo */
+    --accent:#2962ff;    /* azul */
+    --gold:#c67c0a;      /* dorado más oscuro, legible sobre blanco */
+  }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
     background:var(--bg);color:var(--txt);
@@ -34,7 +47,7 @@
   /* --- PANEL INICIO --- */
   .home{margin-top:20px;display:flex;flex-direction:column;gap:14px}
   .streak{
-    background:linear-gradient(135deg,#1c2431,#212c3d);
+    background:linear-gradient(135deg,var(--panel),var(--panel-2));
     border:1px solid var(--line);border-radius:14px;padding:22px 20px;
     display:flex;align-items:center;gap:18px;
   }
@@ -162,8 +175,20 @@
 
   <!-- ===== VISTA INICIO ===== -->
   <div id="view-home">
-    <h1>Hola, <span id="nombre" onclick="editarNombre()" style="cursor:pointer;border-bottom:1px dashed var(--muted)">trader</span></h1>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <h1>Hola, <span id="nombre" onclick="editarNombre()" style="cursor:pointer;border-bottom:1px dashed var(--muted)">trader</span></h1>
+      <button onclick="toggleAjustes()" title="Ajustes" style="background:none;border:1px solid var(--line);color:var(--txt);border-radius:8px;width:38px;height:38px;font-size:18px;cursor:pointer">⚙️</button>
+    </div>
     <div class="welcome">Hoy, 1% mejor que ayer.</div>
+
+    <!-- Menú de ajustes (oculto por defecto) -->
+    <div id="ajustes" class="card hidden" style="margin-top:14px">
+      <h3>Ajustes</h3>
+      <div class="acctrow">
+        <div><strong>Tema</strong><div class="cap">Claro u oscuro, a tu gusto</div></div>
+        <button onclick="cambiarTema()" id="btn-tema" style="background:var(--panel-2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 14px;cursor:pointer">🌙 Oscuro</button>
+      </div>
+    </div>
 
     <div class="field" style="margin-top:14px">
       <label>Tu nombre</label>
@@ -185,6 +210,8 @@
       </div>
 
       <button class="cta" onclick="go('registro')">Registrar hoy →</button>
+
+      <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('historial')">📅 Mi historial</button>
 
       <div style="display:flex;gap:12px">
         <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('preguntas')">Mis preguntas</button>
@@ -565,13 +592,46 @@
     <div class="hint" style="text-align:center">Datos de ejemplo. En la app real se calculan solos desde tus registros.</div>
   </div>
 
+  <!-- ===== VISTA HISTORIAL ===== -->
+  <div id="view-historial" class="hidden">
+    <button class="back" onclick="go('home')">← Inicio</button>
+    <h1>Mi historial</h1>
+    <div class="sub">Tus días registrados. Los huecos son días hábiles sin registro.</div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="field">
+        <label>Consultar un día específico</label>
+        <input type="date" id="hist-fecha" onchange="verDia(this.value)">
+      </div>
+      <div id="hist-detalle"></div>
+    </div>
+
+    <div class="step-label">Últimos días</div>
+    <div id="hist-lista"><div class="hint">Cargando...</div></div>
+  </div>
+
 </div>
 
 <script>
+  function toggleAjustes(){
+    document.getElementById('ajustes').classList.toggle('hidden');
+  }
+  function cambiarTema(){
+    const body=document.body;
+    const claro = body.getAttribute('data-tema')==='claro';
+    if(claro){
+      body.removeAttribute('data-tema');
+      document.getElementById('btn-tema').textContent='🌙 Oscuro';
+    }else{
+      body.setAttribute('data-tema','claro');
+      document.getElementById('btn-tema').textContent='☀️ Claro';
+    }
+  }
   function go(v){
     document.querySelectorAll('[id^=view-]').forEach(e=>e.classList.add('hidden'));
     document.getElementById('view-'+v).classList.remove('hidden');
     window.scrollTo(0,0);
+    if(v==='historial' && typeof cargarHistorial==='function') cargarHistorial();
   }
   function stab(v,el){
     document.querySelectorAll('.statbtn').forEach(b=>b.classList.remove('on'));
@@ -669,5 +729,6 @@
 <script src="js/auth.js"></script>
 <script src="js/cuentas.js"></script>
 <script src="js/registro.js"></script>
+<script src="js/historial.js"></script>
 </body>
 </html>
