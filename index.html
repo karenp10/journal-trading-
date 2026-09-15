@@ -188,6 +188,21 @@
         <div><strong>Tema</strong><div class="cap">Claro u oscuro, a tu gusto</div></div>
         <button onclick="cambiarTema()" id="btn-tema" style="background:var(--panel-2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 14px;cursor:pointer">🌙 Oscuro</button>
       </div>
+
+      <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px">
+        <strong style="color:var(--down)">Reiniciar bitácora</strong>
+        <div class="cap" style="margin-bottom:10px">Borra datos de forma permanente. Elige qué borrar.</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;cursor:pointer">
+          <input type="checkbox" id="rb-dias"> Días y operaciones
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;cursor:pointer">
+          <input type="checkbox" id="rb-preguntas"> Preguntas
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;cursor:pointer">
+          <input type="checkbox" id="rb-cuentas"> Cuentas y retiros
+        </label>
+        <button onclick="reiniciarBitacora()" style="background:none;border:1px solid var(--down);color:var(--down);border-radius:8px;padding:11px;width:100%;cursor:pointer;margin-top:10px;font-weight:600">Borrar lo seleccionado</button>
+      </div>
     </div>
 
     <div class="field" style="margin-top:14px">
@@ -718,5 +733,6 @@
 <script src="js/registro.js"></script>
 <script src="js/historial.js"></script>
 <script src="js/estadisticas.js"></script>
+<script src="js/reiniciar.js"></script>
 </body>
 </html>
