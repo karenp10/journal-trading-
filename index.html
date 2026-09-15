@@ -354,6 +354,21 @@
               <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
             </div>
           </div>
+          <div class="row">
+            <div class="field" style="flex:2">
+              <label>Activo</label>
+              <div class="chips op-activo">
+                <span class="chip" onclick="pickOne(this)">NQ</span>
+                <span class="chip" onclick="pickOne(this)">ES</span>
+                <span class="chip" onclick="pickOne(this)">Oro</span>
+                <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+              </div>
+            </div>
+            <div class="field" style="flex:1">
+              <label>Hora</label>
+              <input type="time" class="op-hora">
+            </div>
+          </div>
           <div class="field">
             <label>Setup</label>
             <div class="chips op-setup">
@@ -519,58 +534,43 @@
       </div>
       <div class="card">
         <h3>Disciplina de la semana</h3>
-        <div class="week">
-          <div class="d"><span class="dot ok">L</span></div>
-          <div class="d"><span class="dot ok">M</span></div>
-          <div class="d"><span class="dot no">X</span></div>
-          <div class="d"><span class="dot ok">J</span></div>
-          <div class="d"><span class="dot ok">V</span></div>
-          <div class="d"><span class="dot hold">S</span></div>
-          <div class="d"><span class="dot off">D</span></div>
-        </div>
+        <div class="week" id="stat-week"></div>
         <div class="legend"><span><i class="dot ok"></i>seguí plan</span><span><i class="dot no"></i>rompí regla</span><span><i class="dot hold"></i>no operé (criterio)</span></div>
       </div>
       <div class="card">
         <h3>Días con rutina previa completa</h3>
-        <div class="bar"><span>Rutina completa</span><em>4 de 6</em></div><div class="track"><div style="width:66%"></div></div>
+        <div id="stat-rutina"><div class="hint">—</div></div>
         <div class="hint" style="margin-top:10px">La rutina previa suele cambiar cómo operas. Vale la pena verla.</div>
       </div>
       <div class="card">
         <h3>Setup que más usé esta semana</h3>
-        <div class="bar"><span>FVG</span><em>4</em></div><div class="track"><div style="width:80%"></div></div>
-        <div class="bar"><span>Liquidez</span><em>2</em></div><div class="track"><div style="width:40%"></div></div>
-        <div class="bar"><span>CHOCH</span><em>1</em></div><div class="track"><div style="width:20%"></div></div>
+        <div id="stat-setups"><div class="hint">—</div></div>
       </div>
       <div class="card">
         <h3>Regla que más rompí esta semana</h3>
-        <div style="font-size:15px;margin-bottom:4px">Cerré por miedo — 2 veces</div>
-        <div class="hint">Es el patrón de la semana. Nombrarlo ya es empezar a corregirlo.</div>
+        <div id="stat-regla"><div class="hint">—</div></div>
       </div>
       <div class="card">
         <h3>Tu foco de la semana</h3>
-        <div class="hint">Lo que decidiste mejorar. Tenerlo presente ya es trabajarlo.</div>
+        <div id="stat-foco" class="hint">Lo que decidiste mejorar. Tenerlo presente ya es trabajarlo.</div>
       </div>
     </div>
 
     <!-- MES -->
     <div class="statview hidden" id="st-mes">
       <div style="display:flex;gap:12px">
-        <div class="card mini"><div class="big up">76%</div><div class="cap">seguí mi plan</div></div>
-        <div class="card mini"><div class="big gold">+9%</div><div class="cap">vs mes pasado</div></div>
-        <div class="card mini"><div class="big">21</div><div class="cap">días activos</div></div>
+        <div class="card mini"><div class="big up" id="mes-plan">—</div><div class="cap">seguí mi plan</div></div>
+        <div class="card mini"><div class="big gold" id="mes-dias">—</div><div class="cap">días activos</div></div>
+        <div class="card mini"><div class="big" id="mes-ops">—</div><div class="cap">operaciones</div></div>
       </div>
       <div class="card">
         <h3>Tu disciplina, semana a semana</h3>
-        <div class="bar"><span>Semana 1</span><em>58%</em></div><div class="track"><div style="width:58%"></div></div>
-        <div class="bar"><span>Semana 2</span><em>71%</em></div><div class="track"><div style="width:71%"></div></div>
-        <div class="bar"><span>Semana 3</span><em>80%</em></div><div class="track"><div style="width:80%"></div></div>
-        <div class="bar"><span>Semana 4</span><em>83%</em></div><div class="track"><div style="width:83%"></div></div>
+        <div id="mes-semanas"><div class="hint">—</div></div>
         <div class="hint" style="margin-top:12px">Tu disciplina semana a semana. Lo que importa es la tendencia.</div>
       </div>
       <div class="card">
         <h3>Regla que más rompí este mes</h3>
-        <div style="font-size:15px;margin-bottom:4px">Entré por FOMO — 5 veces</div>
-        <div class="hint">Compara tu regla más rota con la del mes anterior.</div>
+        <div id="mes-regla"><div class="hint">—</div></div>
       </div>
     </div>
 
@@ -581,8 +581,6 @@
         <div id="lista-cuentas-stats"><div class="hint">Cargando...</div></div>
       </div>
     </div>
-
-    <div class="hint" style="text-align:center">Datos de ejemplo. En la app real se calculan solos desde tus registros.</div>
   </div>
 
   <!-- ===== VISTA HISTORIAL ===== -->
