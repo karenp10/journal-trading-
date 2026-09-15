@@ -1,0 +1,72 @@
+// ============================================================
+//  reiniciar.js — Borrado selectivo y seguro de la bitácora
+//  Depende de supabase.js ("db") y auth.js.
+// ============================================================
+
+async function reiniciarBitacora() {
+  const borrarDias      = document.getElementById("rb-dias")?.checked;
+  const borrarPreguntas = document.getElementById("rb-preguntas")?.checked;
+  const borrarCuentas   = document.getElementById("rb-cuentas")?.checked;
+
+  if (!borrarDias && !borrarPreguntas && !borrarCuentas) {
+    alert("Marca al menos una cosa para borrar.");
+    return;
+  }
+
+  // Resumen de lo que se va a borrar
+  const items = [];
+  if (borrarDias)      items.push("días y operaciones");
+  if (borrarPreguntas) items.push("preguntas");
+  if (borrarCuentas)   items.push("cuentas y retiros");
+
+  // Aviso: borrar cuentas obliga a borrar operaciones (dependen de ellas)
+  let aviso = "";
+  if (borrarCuentas && !borrarDias) {
+    aviso = "\n\nNota: al borrar cuentas, también se borran las operaciones (dependen de las cuentas).";
+  }
+
+  const confirmacion = prompt(
+    "Vas a borrar PARA SIEMPRE: " + items.join(", ") + "." + aviso + "\n\n" +
+    "Esto no se puede deshacer. Escribe BORRAR para confirmar:"
+  );
+  if (confirmacion !== "BORRAR") {
+    alert("Cancelado. No se borró nada.");
+    return;
+  }
+
+  const user = await usuarioActual();
+  if (!user) { alert("Debes iniciar sesión."); return; }
+  const uid = user.id;
+
+  try {
+    // ORDEN IMPORTANTE por las relaciones entre tablas:
+
+    // 1) Preguntas (dependen de operaciones)
+    if (borrarPreguntas || borrarDias) {
+      await db.from("preguntas").delete().eq("user_id", uid);
+    }
+
+    // 2) Operaciones + días
+    if (borrarDias) {
+      await db.from("operaciones").delete().eq("user_id", uid);
+      await db.from("dias").delete().eq("user_id", uid);
+    }
+
+    // 3) Retiros + cuentas (retiros primero, dependen de cuentas)
+    if (borrarCuentas) {
+      // si no se borraron las operaciones antes, hay que borrarlas
+      // porque dependen de cuentas
+      if (!borrarDias) {
+        await db.from("operaciones").delete().eq("user_id", uid);
+      }
+      await db.from("retiros").delete().eq("user_id", uid);
+      await db.from("cuentas").delete().eq("user_id", uid);
+    }
+
+    alert("Listo. Se borró: " + items.join(", ") + ".\nEmpiezas en limpio.");
+    location.reload();
+  } catch (e) {
+    console.error("Error al reiniciar:", e);
+    alert("Ocurrió un error al borrar: " + (e.message || e));
+  }
+}
