@@ -26,40 +26,68 @@ async function crearCuenta() {
   }
   document.getElementById("cta-nombre").value = "";
   listarCuentas(); // refresca la lista
+  if (typeof cargarCuentasEnOps === "function") cargarCuentasEnOps();
 }
 
 // --- Listar las cuentas del usuario ---
 async function listarCuentas() {
-  const cont = document.getElementById("lista-cuentas");
-  if (!cont) return;
-
   const { data, error } = await db
     .from("cuentas")
     .select("*")
     .order("creada_en", { ascending: true });
 
-  if (error) {
-    console.error("Error al listar cuentas:", error.message);
-    return;
-  }
+  if (error) { console.error("Error al listar cuentas:", error.message); return; }
+
+  // Pinta en el inicio y en estadísticas (los que existan)
+  pintarCuentas(document.getElementById("lista-cuentas"), data, true);
+  pintarCuentas(document.getElementById("lista-cuentas-stats"), data, false);
+}
+
+// cont: contenedor · data: cuentas · conSelect: si muestra el selector de estado
+function pintarCuentas(cont, data, conSelect) {
+  if (!cont) return;
   if (!data || data.length === 0) {
     cont.innerHTML = '<div class="hint">Aún no has creado ninguna cuenta.</div>';
     return;
   }
 
-  cont.innerHTML = data.map(c => `
-    <div class="acctrow">
+  const activas  = data.filter(c => ['activa','fondeada','con_retiros'].includes(c.estado));
+  const cerradas = data.filter(c => ['pasada','quemada'].includes(c.estado));
+
+  const nAct = data.filter(c=>c.estado==='activa').length;
+  const nFon = data.filter(c=>c.estado==='fondeada'||c.estado==='con_retiros').length;
+  const nQue = data.filter(c=>c.estado==='quemada').length;
+
+  let html = `
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div class="card mini" style="margin:0"><div class="big up">${nFon}</div><div class="cap">fondeadas</div></div>
+      <div class="card mini" style="margin:0"><div class="big gold">${nAct}</div><div class="cap">activas</div></div>
+      <div class="card mini" style="margin:0"><div class="big down">${nQue}</div><div class="cap">quemadas</div></div>
+    </div>`;
+
+  html += filaGrupo("Activas", activas, conSelect, false);
+  if (cerradas.length) html += filaGrupo("Cerradas", cerradas, conSelect, true);
+
+  cont.innerHTML = html;
+}
+
+function filaGrupo(titulo, cuentas, conSelect, atenuar) {
+  if (!cuentas.length) return titulo==="Activas"
+    ? '<div class="hint">No tienes cuentas activas.</div>' : "";
+  let h = `<div class="cap" style="margin:12px 0 6px">${titulo}</div>`;
+  h += cuentas.map(c => `
+    <div class="acctrow" ${atenuar?'style="opacity:.55"':''}>
       <div><strong>${escapar(c.nombre)}</strong>
         <div class="cap">${c.tipo} · ${c.estado}</div></div>
-      <select class="ministate" onchange="cambiarEstado('${c.id}', this.value)">
+      ${conSelect ? `<select class="ministate" onchange="cambiarEstado('${c.id}', this.value)">
         <option ${c.estado==='activa'?'selected':''}>activa</option>
         <option ${c.estado==='pasada'?'selected':''}>pasada</option>
         <option ${c.estado==='fondeada'?'selected':''}>fondeada</option>
         <option ${c.estado==='quemada'?'selected':''}>quemada</option>
         <option ${c.estado==='con_retiros'?'selected':''}>con_retiros</option>
-      </select>
-    </div>
-  `).join("");
+      </select>` : ''}
+    </div>`).join("");
+  return h;
 }
 
 // --- Cambiar el estado de una cuenta ---
@@ -71,6 +99,8 @@ async function cambiarEstado(id, nuevoEstado) {
   if (error) {
     console.error("Error al cambiar estado:", error.message);
     alert("No se pudo actualizar: " + error.message);
+  } else {
+    listarCuentas();
   }
 }
 
