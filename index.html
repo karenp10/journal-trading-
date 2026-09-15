@@ -561,34 +561,9 @@
 
     <!-- CUENTAS -->
     <div class="statview hidden" id="st-cta">
-      <div style="display:flex;gap:12px">
-        <div class="card mini"><div class="big up">0</div><div class="cap">fondeadas</div></div>
-        <div class="card mini"><div class="big gold">1</div><div class="cap">en challenge</div></div>
-        <div class="card mini"><div class="big down">0</div><div class="cap">quemadas</div></div>
-      </div>
-
       <div class="card">
-        <h3>Cuentas activas</h3>
-        <div class="acctrow">
-          <div><strong>Lucid Flex 0258</strong><div class="cap">Challenge · activa</div></div>
-          <select class="ministate" onchange="estado(this)">
-            <option>Activa</option><option>Pasada / fondeada</option><option>Quemada</option><option>Con retiros</option>
-          </select>
-        </div>
-        <button class="addop" onclick="alert('En la app real: añades la cuenta que compres hoy o la fondeada cuando llegue.')">＋ Añadir cuenta</button>
-      </div>
-
-      <div class="card">
-        <h3>Retiros de cuentas fondeadas</h3>
-        <div class="acctrow" style="opacity:.5"><div><strong>Aún sin retiros</strong><div class="cap">Tu primer retiro se registrará aquí como Retiro 1</div></div></div>
-        <button class="addop" onclick="alert('En la app real: registras Retiro 1, Retiro 2... de cada cuenta fondeada, numerados y con fecha.')">＋ Registrar retiro</button>
-        <div class="hint" style="margin-top:8px">Retiros numerados por cuenta. El monto lo ves en tu plataforma.</div>
-      </div>
-
-      <div class="card">
-        <h3>Historial — tu trayectoria</h3>
-        <div class="hint">Cuentas pasadas, quemadas y retiros — tu trayectoria.</div>
-        <div class="acctrow" style="opacity:.5"><div><strong>Aún sin cuentas cerradas</strong><div class="cap">Tu primera cuenta está en camino</div></div></div>
+        <h3>Todas mis cuentas</h3>
+        <div id="lista-cuentas-stats"><div class="hint">Cargando...</div></div>
       </div>
     </div>
 
@@ -649,6 +624,7 @@
     el.classList.add('on');
     document.querySelectorAll('.statview').forEach(s=>s.classList.add('hidden'));
     document.getElementById('st-'+v).classList.remove('hidden');
+    if(v==='cta' && typeof listarCuentas==='function') listarCuentas();
   }
   function estado(sel){
     const v=sel.value;
