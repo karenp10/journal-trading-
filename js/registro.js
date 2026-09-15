@@ -109,6 +109,8 @@ async function guardarDia() {
         dia_id: diaGuardado.id,
         cuenta_id: cuentaChip ? cuentaChip.dataset.id : null,
         orden: orden++,
+        activo: chipUnico(op.querySelector('.op-activo')),
+        hora: op.querySelector('.op-hora')?.value || null,
         setup: chipsMarcados(op.querySelector('.op-setup')),
         razon_tecnica: op.querySelector('.op-razon')?.value.trim() || null,
         gestion: chipsMarcados(op.querySelector('.op-gestion')),
