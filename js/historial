@@ -1,0 +1,159 @@
+// ============================================================
+//  historial.js — Ver días guardados, consultar por fecha y ver huecos
+//  Depende de supabase.js ("db") y auth.js.
+// ============================================================
+
+// --- Cargar la lista de los últimos días ---
+async function cargarHistorial() {
+  const cont = document.getElementById("hist-lista");
+  if (!cont) return;
+  cont.innerHTML = '<div class="hint">Cargando...</div>';
+
+  const { data, error } = await db
+    .from("dias")
+    .select("*")
+    .order("fecha", { ascending: false })
+    .limit(30);
+
+  if (error) {
+    cont.innerHTML = '<div class="hint">Error al cargar: ' + error.message + '</div>';
+    return;
+  }
+  if (!data || data.length === 0) {
+    cont.innerHTML = '<div class="hint">Aún no tienes días registrados.</div>';
+    return;
+  }
+
+  // Mapa de fechas guardadas para detectar huecos
+  const fechasGuardadas = new Set(data.map(d => d.fecha));
+
+  // Construir lista combinando días guardados + huecos hábiles
+  const filas = [];
+  const hoy = new Date();
+  // recorre los últimos 30 días de calendario
+  for (let i = 0; i < 30; i++) {
+    const f = new Date(hoy);
+    f.setDate(hoy.getDate() - i);
+    const iso = f.toISOString().slice(0, 10);
+    const diaSemana = f.getDay(); // 0=domingo, 6=sábado
+    const esFinDe = (diaSemana === 0 || diaSemana === 6);
+
+    if (fechasGuardadas.has(iso)) {
+      const d = data.find(x => x.fecha === iso);
+      filas.push(filaGuardada(d, f));
+    } else if (!esFinDe) {
+      // día hábil sin registro = hueco
+      filas.push(filaHueco(iso, f));
+    }
+    // fines de semana sin registro: no se muestran (no cuentan)
+  }
+
+  cont.innerHTML = filas.join("");
+}
+
+// --- Fila de un día guardado ---
+function filaGuardada(d, fechaObj) {
+  let etiqueta, color;
+  if (d.opero === false) {
+    etiqueta = "No operé · " + (d.motivo_no_opero || "sin motivo");
+    color = "var(--gold)";
+  } else if (d.opero === true) {
+    etiqueta = "Operé";
+    color = "var(--up)";
+  } else {
+    etiqueta = "Solo análisis";
+    color = "var(--muted)";
+  }
+  return `
+    <div class="acctrow" style="cursor:pointer" onclick="verDia('${d.fecha}')">
+      <div>
+        <strong>${fechaBonita(fechaObj)}</strong>
+        <div class="cap" style="color:${color}">${etiqueta}</div>
+      </div>
+      <span style="color:var(--muted)">›</span>
+    </div>`;
+}
+
+// --- Fila de un hueco (día hábil sin registro) ---
+function filaHueco(iso, fechaObj) {
+  return `
+    <div class="acctrow" style="opacity:.55">
+      <div>
+        <strong>${fechaBonita(fechaObj)}</strong>
+        <div class="cap" style="color:var(--down)">Sin registro</div>
+      </div>
+      <span style="color:var(--muted)">—</span>
+    </div>`;
+}
+
+// --- Ver el detalle de un día concreto ---
+async function verDia(iso) {
+  const cont = document.getElementById("hist-detalle");
+  if (!cont) return;
+  cont.innerHTML = '<div class="hint">Cargando...</div>';
+
+  const { data, error } = await db
+    .from("dias").select("*").eq("fecha", iso).maybeSingle();
+
+  if (error) { cont.innerHTML = '<div class="hint">Error: ' + error.message + '</div>'; return; }
+  if (!data) {
+    cont.innerHTML = '<div class="hint">No hay registro para ese día.</div>';
+    return;
+  }
+
+  // Traer operaciones de ese día
+  const { data: ops } = await db
+    .from("operaciones").select("*").eq("dia_id", data.id).order("orden");
+
+  let html = '<div class="card" style="margin-top:12px;background:var(--panel-2)">';
+  html += '<h3>' + iso + '</h3>';
+
+  if (data.rutina && data.rutina.length)
+    html += linea("Rutina", data.rutina.join(", "));
+  html += linea("Sesgo", data.sesgo_dia);
+  html += linea("Estructura", data.estructura);
+
+  if (data.opero === false) {
+    html += linea("No operó", data.motivo_no_opero);
+    if (data.nota_no_opero) html += linea("Nota", data.nota_no_opero);
+  } else if (data.opero === true) {
+    html += linea("Límite respetado", data.respeto_limite_perdida ? "Sí" : "No");
+    html += linea("Objetivo cumplido", data.cumplio_objetivo ? "Sí" : "No");
+    if (data.que_hice_bien) html += linea("Hice bien", data.que_hice_bien);
+    if (data.que_mejorare) html += linea("A mejorar", data.que_mejorare);
+    if (ops && ops.length) {
+      html += '<div class="cap" style="margin-top:10px">Operaciones:</div>';
+      ops.forEach((o, i) => {
+        html += '<div style="border-left:2px solid var(--line);padding-left:10px;margin:8px 0">';
+        // Encabezado: Op N · Activo · Hora
+        let cab = "Op " + (i + 1);
+        if (o.activo) cab += " · " + o.activo;
+        if (o.hora) cab += " · " + o.hora.slice(0,5);
+        html += '<div style="font-size:14px;font-weight:600;margin-bottom:4px">' + escaparH(cab) + '</div>';
+        html += linea("Setup", (o.setup || []).join(", "));
+        if (o.ratio_r != null) html += linea("R", o.ratio_r);
+        if (o.resultado) html += linea("Resultado", o.resultado);
+        if (o.regla_rota) html += linea("Regla", o.regla_rota);
+        if (o.gestion && o.gestion.length) html += linea("Gestión", o.gestion.join(", "));
+        // Captura
+        if (o.captura_url) {
+          html += '<img src="' + o.captura_url + '" style="max-width:100%;border-radius:8px;margin-top:8px" alt="captura">';
+        }
+        html += '</div>';
+      });
+    }
+  }
+  html += '</div>';
+  cont.innerHTML = html;
+}
+
+function linea(k, v) {
+  if (v === null || v === undefined || v === "") return "";
+  return '<div style="margin:5px 0;font-size:14px"><span style="color:var(--muted)">' + k + ':</span> ' + escaparH(v) + '</div>';
+}
+function escaparH(t) {
+  return String(t).replace(/[<>&]/g, s => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[s]));
+}
+function fechaBonita(d) {
+  return d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' });
+}
