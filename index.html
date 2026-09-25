@@ -2,267 +2,228 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bitácora NQ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mi Bitácora de Trading</title>
 <style>
-  :root{
-    --bg:#131722;        /* fondo TradingView */
-    --panel:#1c2431;     /* tarjetas */
-    --panel-2:#232d3d;   /* tarjetas internas */
-    --line:#2a3446;      /* bordes */
-    --txt:#d1d4dc;       /* texto principal */
-    --muted:#787b86;     /* texto secundario */
-    --up:#26a69a;        /* verde TV */
-    --down:#ef5350;      /* rojo TV */
-    --accent:#2962ff;    /* azul TV, para acciones */
-    --gold:#f5b041;      /* racha / disciplina */
-  }
-  /* Tema claro: se activa con <body data-tema="claro"> */
-  body[data-tema="claro"]{
-    --bg:#f4f6fa;        /* fondo claro */
-    --panel:#ffffff;     /* tarjetas */
-    --panel-2:#eef1f6;   /* tarjetas internas */
-    --line:#d8dee9;      /* bordes */
-    --txt:#1c2431;       /* texto principal */
-    --muted:#6b7280;     /* texto secundario */
-    --up:#0f9b8e;        /* verde algo más oscuro para contraste */
-    --down:#e03e3e;      /* rojo */
-    --accent:#2962ff;    /* azul */
-    --gold:#c67c0a;      /* dorado más oscuro, legible sobre blanco */
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    background:var(--bg);color:var(--txt);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-size:15px;line-height:1.5;padding-bottom:40px;
-  }
-  .wrap{max-width:760px;margin:0 auto;padding:20px 16px}
-  h1{font-size:20px;font-weight:600;letter-spacing:.2px}
-  .sub{color:var(--muted);font-size:13px;margin-top:2px}
-  .welcome{
-    color:var(--gold);font-size:18px;font-weight:500;margin-top:10px;
-    line-height:1.4;letter-spacing:.2px;
-  }
+:root{
+  --bg:#0d0d0f; --surface:#1a1a1e; --surface2:#242429; --line:#2e2e35;
+  --txt:#f2f2f4; --muted:#8b8b93;
+  --lime:#c6f432; --lime-dark:#1a1a1e;
+  --purple:#b18cff; --purple-deep:#8b5cf6;
+  --up:#3ddc97; --down:#ff5c72; --gold:#ffcb45; --accent:#7c5cff;
+  --card-radius:26px;
+}
+:root[data-tema="claro"]{
+  --bg:#f0f1f5; --surface:#ffffff; --surface2:#f4f5f9; --line:#e2e4ec;
+  --txt:#16161a; --muted:#6b6b76;
+  --lime:#c6f432; --lime-dark:#16161a;
+  --purple:#9b7bff; --purple-deep:#8b5cf6;
+  --up:#12b886; --down:#e8384f; --gold:#e0a415; --accent:#7c5cff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.5;
+}
+/* ===== App shell (centrado, ancho móvil en desktop) ===== */
+#app{display:none;max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:90px}
+@media(min-width:520px){ #app{border-left:1px solid var(--line);border-right:1px solid var(--line)} }
+.view{display:none;padding:22px 18px 10px}
+.view.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-  /* --- PANEL INICIO --- */
-  .home{margin-top:20px;display:flex;flex-direction:column;gap:14px}
-  .streak{
-    background:linear-gradient(135deg,var(--panel),var(--panel-2));
-    border:1px solid var(--line);border-radius:14px;padding:22px 20px;
-    display:flex;align-items:center;gap:18px;
-  }
-  .streak-num{font-size:46px;font-weight:700;color:var(--gold);line-height:1;min-width:70px;text-align:center}
-  .streak-txt strong{display:block;font-size:16px;margin-bottom:3px}
-  .streak-txt span{color:var(--muted);font-size:13px}
-  .focus{
-    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
-    border-radius:10px;padding:14px 16px;
-  }
-  .focus .label{color:var(--muted);font-size:12px;margin-bottom:4px}
-  .focus .body{font-size:15px;font-style:italic}
-  .cta{
-    background:var(--accent);color:#fff;border:none;border-radius:10px;
-    padding:16px;font-size:16px;font-weight:600;cursor:pointer;width:100%;
-    transition:background .15s;
-  }
-  .cta:hover{background:#1e4fd6}
+h1{font-size:26px;font-weight:800;letter-spacing:-.5px}
+h2{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:14px;margin-top:2px}
+.muted{color:var(--muted)}
 
-  /* --- ETIQUETAS DE PASO --- */
-  .step-label{
-    font-size:13px;font-weight:600;color:var(--muted);
-    margin:24px 0 10px;padding-left:2px;
-  }
+/* ===== Cards ===== */
+.card{background:var(--surface);border-radius:var(--card-radius);padding:20px;margin-bottom:16px}
+.card h3{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:14px;text-transform:none}
+.card-lime{background:var(--lime);color:var(--lime-dark)}
+.card-lime *{color:var(--lime-dark)}
+.card-purple{background:var(--purple);color:#1a1226}
+.card-purple *{color:#1a1226}
 
-  /* --- SECCIONES --- */
-  .section{display:none;margin-top:18px}
-  .section.active{display:block;animation:fade .2s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
-  .card h3{font-size:13px;color:var(--muted);font-weight:600;text-transform:none;margin-bottom:14px;letter-spacing:.3px}
+/* ===== Header con perfil ===== */
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--purple-deep);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:18px;overflow:hidden}
+.icon-btn{width:44px;height:44px;border-radius:50%;background:var(--surface);border:none;color:var(--txt);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-  .field{margin-bottom:14px}
-  .field:last-child{margin-bottom:0}
-  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  input[type=text],textarea,select{
-    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
-    color:var(--txt);padding:10px 12px;font-size:14px;font-family:inherit;
-  }
-  textarea{resize:vertical;min-height:80px;line-height:1.55}
-  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
-  .row{display:flex;gap:12px}
-  .row .field{flex:1}
+/* ===== Stat tiles (estilo imagen) ===== */
+.tiles{display:flex;gap:14px;margin-bottom:16px}
+.tile{flex:1;border-radius:var(--card-radius);padding:20px;position:relative;min-height:140px;display:flex;flex-direction:column;justify-content:space-between}
+.tile .big{font-size:44px;font-weight:800;line-height:1}
+.tile .lbl{font-size:13px;font-weight:600;opacity:.85}
+.tile .corner{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:15px}
 
-  /* chips */
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{
-    background:var(--panel-2);border:1px solid var(--line);border-radius:20px;
-    padding:7px 14px;font-size:13px;cursor:pointer;color:var(--txt);transition:all .12s;user-select:none;
-  }
-  .chip:hover{border-color:var(--muted)}
-  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-  .chip.add{color:var(--muted);border-style:dashed}
-  .chip.up.on{background:var(--up);border-color:var(--up)}
-  .chip.down.on{background:var(--down);border-color:var(--down)}
-  .chip.acct.on{background:var(--gold);border-color:var(--gold);color:#241c04}
+/* ===== Botones ===== */
+.btn{border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:inherit}
+.btn-lime{background:var(--lime);color:var(--lime-dark)}
+.btn-ghost{background:var(--surface2);color:var(--txt)}
+.btn-outline{background:transparent;border:1.5px solid var(--line);color:var(--txt)}
+.btn-danger{background:transparent;border:1.5px solid var(--down);color:var(--down)}
+.btn-sm{padding:9px 14px;font-size:13px;border-radius:12px;width:auto}
+.row{display:flex;gap:12px}
+.row>*{flex:1}
 
-  /* resultado seg */
-  .seg{display:flex;gap:8px}
-  .seg .chip{flex:1;text-align:center}
+/* ===== Inputs ===== */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:500}
+input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{
+  width:100%;background:var(--surface2);border:1.5px solid transparent;border-radius:14px;
+  color:var(--txt);padding:13px 15px;font-size:15px;font-family:inherit;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--purple-deep)}
+textarea{resize:vertical;min-height:70px;line-height:1.55}
 
-  /* operación bloque */
-  .op{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px;background:var(--panel-2)}
-  .op-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-  .op-head strong{font-size:14px}
-  .op-head .r{font-size:13px;color:var(--muted)}
-  .drop{
-    border:1.5px dashed var(--line);border-radius:8px;padding:22px;text-align:center;
-    color:var(--muted);font-size:13px;cursor:pointer;background:rgba(0,0,0,.12);
-  }
-  .addop{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:8px;padding:11px;width:100%;cursor:pointer;font-size:13px}
+/* ===== Chips ===== */
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{background:var(--surface2);border:1.5px solid transparent;border-radius:20px;padding:9px 15px;font-size:13.5px;cursor:pointer;user-select:none;transition:.12s}
+.chip.on{background:var(--lime);color:var(--lime-dark);font-weight:600}
+.chip.add{color:var(--muted);border-style:dashed;border-color:var(--line)}
+.chip.up.on{background:var(--up);color:#04211d}
+.chip.down.on{background:var(--down);color:#fff}
+.chip.acct.on{background:var(--purple);color:#1a1226}
+.seg{display:flex;gap:9px}
+.seg .chip{flex:1;text-align:center}
 
-  .save{background:var(--up);color:#04211d;border:none;border-radius:10px;padding:14px;font-weight:700;width:100%;cursor:pointer;font-size:15px;margin-top:4px}
+/* ===== Bottom nav ===== */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+  background:var(--surface);border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;align-items:center;padding:10px 8px 14px;z-index:50}
+.nav button{background:none;border:none;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-family:inherit;padding:4px 10px;border-radius:14px}
+.nav button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav button.on{color:var(--txt)}
+.nav .fab{background:var(--lime);color:var(--lime-dark);width:56px;height:56px;border-radius:50%;justify-content:center;margin-top:-24px;box-shadow:0 6px 18px rgba(198,244,50,.35)}
+.nav .fab svg{width:28px;height:28px;stroke-width:2.5}
 
-  /* preguntas */
-  .q{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px}
-  .q .qt{font-size:14px;margin-bottom:6px}
-  .q .qa{font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
-  .q .pending{color:var(--gold);font-size:12px}
+/* ===== Login ===== */
+#pantalla-login{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:30px}
+.gbtn{background:#fff;color:#111;border:none;border-radius:16px;padding:15px 26px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:12px}
 
-  .back{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;margin-bottom:8px;padding:0}
-  .hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
-  .hidden{display:none}
-
-  /* --- ESTADÍSTICAS --- */
-  .statnav{display:flex;gap:4px;margin:18px 0 4px;background:var(--panel);padding:4px;border-radius:10px;border:1px solid var(--line)}
-  .statbtn{flex:1;text-align:center;padding:9px;border-radius:7px;cursor:pointer;color:var(--muted);font-size:14px;user-select:none}
-  .statbtn.on{background:var(--panel-2);color:var(--txt)}
-  .statview{margin-top:14px}
-  .mini{flex:1;text-align:center;margin-bottom:0;padding:16px 8px}
-  .big{font-size:30px;font-weight:700}
-  .big.up{color:var(--up)} .big.gold{color:var(--gold)} .big.down{color:var(--down)}
-  .cap{color:var(--muted);font-size:12px;margin-top:4px}
-  .week{display:flex;justify-content:space-between;gap:6px;margin-bottom:12px}
-  .week .d{flex:1;text-align:center}
-  .dot{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:12px;color:#0d1017;font-weight:600}
-  i.dot{width:12px;height:12px;margin-right:5px;vertical-align:middle}
-  .dot.ok{background:var(--up)} .dot.no{background:var(--down)} .dot.hold{background:var(--gold)} .dot.off{background:var(--panel-2);color:var(--muted)}
-  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
-  .legend span{display:flex;align-items:center}
-  .bar{display:flex;justify-content:space-between;font-size:13px;margin:10px 0 4px}
-  .bar em{color:var(--muted);font-style:normal}
-  .track{height:6px;background:var(--panel-2);border-radius:3px;overflow:hidden}
-  .track div{height:100%;background:var(--accent);border-radius:3px}
-  .acctrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:12px}
-  .acctrow:last-of-type{border-bottom:none}
-  .ministate{width:auto;font-size:13px;padding:7px 10px}
+/* ===== Misc ===== */
+.hint{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.5}
+.hidden{display:none!important}
+.step-label{font-size:12px;font-weight:700;color:var(--purple);margin:22px 0 10px;letter-spacing:.4px;text-transform:uppercase}
+.back{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;margin-bottom:12px;padding:0;display:flex;align-items:center;gap:6px}
+.listrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);gap:12px}
+.listrow:last-child{border-bottom:none}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px}
+.drop{border:1.6px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--muted);font-size:13.5px;cursor:pointer;background:var(--surface2)}
+.pill{display:inline-block;background:var(--surface2);border-radius:10px;padding:3px 9px;font-size:11px;color:var(--muted);margin-right:5px}
+.bar{display:flex;justify-content:space-between;font-size:13.5px;margin:11px 0 5px}
+.bar em{color:var(--muted);font-style:normal}
+.track{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.track div{height:100%;background:var(--purple-deep);border-radius:4px}
+.statnav{display:flex;gap:6px;background:var(--surface2);padding:5px;border-radius:16px;margin:14px 0;overflow-x:auto}
+.statbtn{flex:1;min-width:70px;text-align:center;padding:9px;border-radius:12px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap}
+.statbtn.on{background:var(--surface);color:var(--txt)}
+.mini{flex:1;text-align:center;padding:16px 8px;border-radius:20px;background:var(--surface)}
+.mini .big{font-size:28px;font-weight:800}
+.mini .cap{color:var(--muted);font-size:11.5px;margin-top:4px}
+.dot{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:11px;font-weight:700;color:#0d0d0f}
+.dot.ok{background:var(--up)}.dot.no{background:var(--down)}.dot.hold{background:var(--gold)}.dot.off{background:var(--surface2);color:var(--muted)}
+.week{display:flex;justify-content:space-between;gap:5px;margin-bottom:12px}
+.op{background:var(--surface2);border-radius:18px;padding:16px;margin-bottom:14px}
+.op-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.q{background:var(--surface);border-radius:18px;padding:16px;margin-bottom:12px}
+.q .qt{font-size:14.5px;margin-bottom:8px;font-weight:500}
+.q .qa{font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:9px;margin-top:4px}
+.q .pending{color:var(--gold)}
+.addop{background:transparent;border:1.5px dashed var(--line);color:var(--muted);border-radius:14px;padding:13px;width:100%;cursor:pointer;font-size:14px;font-family:inherit;margin-bottom:12px}
 </style>
 </head>
 <body>
 
-<!-- Pantalla de login (se ve sin sesión) -->
-<div id="pantalla-login" style="display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:24px">
-  <h1 style="color:#d1d4dc">Bitácora de Trading</h1>
-  <p style="color:#f5b041;font-size:18px">Hoy, 1% mejor que ayer.</p>
-  <button onclick="loginConGoogle()" style="background:#fff;color:#111;border:none;border-radius:10px;padding:14px 22px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px">
-    <img src="https://www.google.com/favicon.ico" width="20" height="20" alt="">
-    Entrar con Google
+<!-- ===================== LOGIN ===================== -->
+<div id="pantalla-login">
+  <div style="width:70px;height:70px;border-radius:22px;background:var(--lime);display:flex;align-items:center;justify-content:center;font-size:34px">📈</div>
+  <div>
+    <h1>Mi Bitácora</h1>
+    <p style="color:var(--gold);font-size:17px;margin-top:8px">Hoy, 1% mejor que ayer.</p>
+  </div>
+  <button class="gbtn" onclick="loginConGoogle()">
+    <img src="https://www.google.com/favicon.ico" width="20" height="20" alt=""> Entrar con Google
   </button>
 </div>
 
-<!-- La app (se ve con sesión) -->
-<div id="app" style="display:none">
-<div class="wrap">
+<!-- ===================== APP ===================== -->
+<div id="app">
 
-  <!-- ===== VISTA INICIO ===== -->
-  <div id="view-home">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <h1>Hola, <span id="nombre" onclick="editarNombre()" style="cursor:pointer;border-bottom:1px dashed var(--muted)">trader</span></h1>
-      <button onclick="toggleAjustes()" title="Ajustes" style="background:none;border:1px solid var(--line);color:var(--txt);border-radius:8px;width:38px;height:38px;font-size:18px;cursor:pointer">⚙️</button>
-    </div>
-    <div class="welcome">Hoy, 1% mejor que ayer.</div>
-
-    <!-- Menú de ajustes (oculto por defecto) -->
-    <div id="ajustes" class="card hidden" style="margin-top:14px">
-      <h3>Ajustes</h3>
-      <div class="acctrow">
-        <div><strong>Tema</strong><div class="cap">Claro u oscuro, a tu gusto</div></div>
-        <button onclick="cambiarTema()" id="btn-tema" style="background:var(--panel-2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 14px;cursor:pointer">🌙 Oscuro</button>
-      </div>
-
-      <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px">
-        <strong style="color:var(--down)">Reiniciar bitácora</strong>
-        <div class="cap" style="margin-bottom:10px">Borra datos de forma permanente. Elige qué borrar.</div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;cursor:pointer">
-          <input type="checkbox" id="rb-dias"> Días y operaciones
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;cursor:pointer">
-          <input type="checkbox" id="rb-preguntas"> Preguntas
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;cursor:pointer">
-          <input type="checkbox" id="rb-cuentas"> Cuentas y retiros
-        </label>
-        <button onclick="reiniciarBitacora()" style="background:none;border:1px solid var(--down);color:var(--down);border-radius:8px;padding:11px;width:100%;cursor:pointer;margin-top:10px;font-weight:600">Borrar lo seleccionado</button>
-      </div>
-    </div>
-
-    <div class="field" style="margin-top:14px">
-      <label>Tu nombre</label>
-      <input type="text" placeholder="Escribe tu nombre" oninput="document.getElementById('nombre').textContent=this.value||'trader'">
-    </div>
-
-    <div class="home">
-      <div class="streak">
-        <div class="streak-num" id="racha-inicio">—</div>
-        <div class="streak-txt">
-          <strong>Días respetando tu plan</strong>
-          <span>Tu progreso real no es cuánto ganaste. Es cuántas veces te respetaste.</span>
+  <!-- ========== INICIO ========== -->
+  <div class="view active" id="v-inicio">
+    <div class="top">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avatar" id="ini-avatar">K</div>
+        <div>
+          <div style="font-size:13px;color:var(--muted)">Hola,</div>
+          <div style="font-size:19px;font-weight:800" id="ini-nombre">trader</div>
         </div>
       </div>
+      <button class="icon-btn" onclick="irPerfil()">⚙️</button>
+    </div>
+    <div class="sub" style="margin-bottom:18px" id="ini-frase-planned">Tu progreso se mide por disciplina, no por dinero.</div>
 
-      <div class="focus">
-        <div class="label">Tu foco de hoy — lo escribiste ayer</div>
-        <div class="body">"Debo confiar en mi análisis, no mover la operación ya que esto me está perjudicando en las ganancias."</div>
+    <div class="tiles">
+      <div class="tile card-purple">
+        <div class="corner">🔥</div>
+        <div class="big" id="ini-racha">0</div>
+        <div class="lbl">Días respetando<br>tu plan</div>
       </div>
-
-      <button class="cta" onclick="go('registro')">Registrar hoy →</button>
-
-      <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('historial')">📅 Mi historial</button>
-
-      <div style="display:flex;gap:12px">
-        <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('preguntas')">Mis preguntas</button>
-        <button class="cta" style="background:var(--panel);border:1px solid var(--line);color:var(--txt)" onclick="go('stats')">Estadísticas</button>
-      </div>
-
-      <div class="card" style="margin-top:14px">
-        <h3>Mis cuentas</h3>
-        <div id="lista-cuentas"><div class="hint">Cargando...</div></div>
-        <div class="row" style="margin-top:14px">
-          <div class="field" style="flex:2">
-            <label>Nombre de la cuenta</label>
-            <input type="text" id="cta-nombre" placeholder="Ej. Lucid Flex 0258">
-          </div>
-          <div class="field" style="flex:1">
-            <label>Tipo</label>
-            <select id="cta-tipo"><option value="challenge">Challenge</option><option value="fondeada">Fondeada</option></select>
-          </div>
-        </div>
-        <button class="save" onclick="crearCuenta()">Guardar cuenta</button>
+      <div class="tile card-lime">
+        <div class="corner">📅</div>
+        <div class="big" id="ini-registros">0</div>
+        <div class="lbl">Días registrados</div>
       </div>
     </div>
-  </div>
-
-  <!-- ===== VISTA REGISTRO ===== -->
-  <div id="view-registro" class="hidden">
-    <button class="back" onclick="go('home')">← Inicio</button>
-    <h1>Registro del día</h1>
-    <div class="sub" id="fecha-hoy"></div>
-
-    <!-- 1. ANTES — pre-análisis, SIEMPRE visible -->
-    <div class="step-label" style="margin-top:20px">1 · Antes — análisis pre-sesión</div>
 
     <div class="card">
+      <h3>📋 Tu foco de hoy — lo escribiste ayer</h3>
+      <div id="ini-foco" style="font-size:15px;font-style:italic">Registra tu primer día para empezar.</div>
+    </div>
+
+    <button class="btn btn-lime" onclick="irRegistro()" style="font-size:16px;padding:17px">Registrar hoy  +</button>
+  </div>
+
+  <!-- ========== PREGUNTAS ========== -->
+  <div class="view" id="v-preguntas">
+    <h1>Mis preguntas</h1>
+    <div class="sub">Anota tus dudas. Al responderlas pasan a Resueltas.</div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="field" style="margin-bottom:10px">
+        <input type="text" id="nueva-pregunta" placeholder="Escribe una nueva pregunta...">
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <input type="file" accept="image/*" id="preg-imagen" style="display:none" onchange="previewPreg(this)">
+        <div class="drop" onclick="document.getElementById('preg-imagen').click()">📷 Adjuntar gráfico (opcional)</div>
+        <img id="preg-preview" style="display:none;max-width:100%;border-radius:14px;margin-top:8px">
+      </div>
+      <button class="btn btn-lime" onclick="crearPregunta()">Añadir pregunta</button>
+    </div>
+
+    <div class="statnav" style="margin-top:4px">
+      <div class="statbtn on" onclick="tabPreg('abiertas',this)">Abiertas</div>
+      <div class="statbtn" onclick="tabPreg('resueltas',this)">Resueltas</div>
+    </div>
+    <div id="preg-abiertas"><div class="hint">Cargando...</div></div>
+    <div id="preg-resueltas" class="hidden"><div class="hint">Cargando...</div></div>
+    <button class="btn btn-outline btn-sm" style="width:100%;margin-top:8px" onclick="descargarPreguntasWord()">📄 Descargar preguntas en Word</button>
+  </div>
+
+  <!-- ========== REGISTRO ========== -->
+  <div class="view" id="v-registro">
+    <h1>Registro del día</h1>
+    <div class="sub" id="reg-fecha"></div>
+
+    <!-- PASO 1 ANTES -->
+    <div class="step-label">1 · Antes — pre-análisis</div>
+    <div class="card">
       <h3>Rutina previa — antes de mirar el gráfico</h3>
-      <div class="chips" id="rutina-chips">
+      <div class="chips" id="f-rutina">
         <span class="chip" onclick="pick(this)">Estiramientos</span>
         <span class="chip" onclick="pick(this)">Respiración</span>
         <span class="chip" onclick="pick(this)">Ancla</span>
@@ -271,466 +232,736 @@
         <span class="chip" onclick="pick(this)">Reglas en voz alta</span>
         <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
       </div>
-      <div class="hint" style="margin-top:10px">Marca lo que hiciste. Toca "editar" para ajustar tu rutina a la tuya. <span onclick="toggleDel('rutina-chips',this)" style="color:var(--accent);cursor:pointer">editar</span></div>
+      <div class="hint">Marca lo que hiciste. <span onclick="editarChips(this)" style="color:var(--purple);cursor:pointer">✎ editar</span></div>
     </div>
-
-    <div class="section active" id="s-antes">
-      <div class="card">
-        <h3>Análisis pre-sesión</h3>
-        <div class="row">
-          <div class="field">
-            <label>Sesgo del día</label>
-            <select id="f-sesgo"><option>Compra</option><option>Venta</option><option>No claro</option></select>
-          </div>
-          <div class="field">
-            <label>Estructura 4H / 1H</label>
-            <select id="f-estructura"><option>Alcista</option><option>Bajista</option><option>Rango</option></select>
-          </div>
-        </div>
-        <div class="field">
-          <label>Escenario principal</label>
-          <input type="text" id="f-esc-principal" placeholder="Ej. Venta desde rango superior">
-        </div>
-        <div class="field">
-          <label>Escenario secundario</label>
-          <input type="text" id="f-esc-secundario" placeholder="Ej. Compra si rompe estructura">
-        </div>
-        <div class="field">
-          <label>Estado emocional al iniciar</label>
-          <div class="chips" id="f-emocion-inicio">
-            <span class="chip" onclick="pick(this)">Calma</span>
-            <span class="chip" onclick="pick(this)">Miedo</span>
-            <span class="chip" onclick="pick(this)">Ansiedad</span>
-            <span class="chip" onclick="pick(this)">Confianza</span>
-            <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-          </div>
-        </div>
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Sesgo del día</label>
+          <select id="f-sesgo"><option>Compra</option><option>Venta</option><option>No claro</option></select></div>
+        <div class="field"><label>Estructura 4H/1H</label>
+          <select id="f-estructura"><option>Alcista</option><option>Bajista</option><option>Rango</option></select></div>
       </div>
-      <div class="hint">El análisis va siempre, operes o no.</div>
+      <div class="field"><label>¿Qué veo en HTF? (temporalidad alta)</label>
+        <textarea id="f-htf" placeholder="Contexto: tendencia, zonas, liquidez en 4H/1H..."></textarea></div>
+      <div class="field"><label>¿Qué veo en LTF? (temporalidad baja)</label>
+        <textarea id="f-ltf" placeholder="Gatillo de entrada: estructura fina, confirmaciones..."></textarea></div>
+      <div class="field"><label>Escenario principal</label>
+        <input type="text" id="f-esc1" placeholder="Ej. Venta desde rango superior"></div>
+      <div class="field"><label>Escenario secundario</label>
+        <input type="text" id="f-esc2" placeholder="Ej. Compra si rompe estructura"></div>
+      <div class="field"><label>Estado emocional al iniciar</label>
+        <div class="chips" id="f-emo-ini">
+          <span class="chip" onclick="pickOne(this)">Calma</span>
+          <span class="chip" onclick="pickOne(this)">Miedo</span>
+          <span class="chip" onclick="pickOne(this)">Ansiedad</span>
+          <span class="chip" onclick="pickOne(this)">Confianza</span>
+          <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
+        </div></div>
     </div>
 
-    <!-- 2. ¿OPERÉ HOY? — después del análisis -->
+    <!-- PASO 2 ¿OPERÉ? -->
     <div class="step-label">2 · ¿Operé hoy?</div>
-    <div class="card" id="filtro">
+    <div class="card">
       <div class="seg">
         <span class="chip up" onclick="opere(true,this)">Sí operé</span>
         <span class="chip" onclick="opere(false,this)">No operé</span>
       </div>
       <div id="noopere" class="hidden" style="margin-top:16px">
-        <div class="field">
-          <label>¿Por qué no? — contenerte con criterio también es disciplina</label>
-          <div class="chips" id="f-motivo-no">
+        <div class="field"><label>¿Por qué no?</label>
+          <div class="chips" id="f-motivo">
             <span class="chip" onclick="pickOne(this)">No había setup claro</span>
             <span class="chip" onclick="pickOne(this)">Estado emocional</span>
-            <span class="chip" onclick="pickOne(this)">Noticias / alto impacto</span>
-            <span class="chip" onclick="pickOne(this)">Ya cumplí mi objetivo</span>
+            <span class="chip" onclick="pickOne(this)">Noticias</span>
+            <span class="chip" onclick="pickOne(this)">Ya cumplí objetivo</span>
             <span class="chip" onclick="pickOne(this)">Regla de la cuenta</span>
             <span class="chip" onclick="pickOne(this)">Día feriado</span>
-            <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-          </div>
-        </div>
-        <div class="field">
-          <label>Nota (opcional)</label>
-          <textarea id="f-nota-no" placeholder="Ej. El mercado estaba acumulativo y decidí no forzar."></textarea>
-        </div>
-        <button class="save" onclick="guardarDia()">Guardar día</button>
-        <div class="hint" style="margin-top:10px">No operar con criterio suma a tu racha.</div>
+            <span class="chip" onclick="pickOne(this)">Personal (citas, familia)</span>
+          </div></div>
+        <div class="field"><label>Nota (opcional)</label>
+          <textarea id="f-nota-no" placeholder="Ej. El mercado estaba acumulativo y no forcé."></textarea></div>
+        <button class="btn btn-lime" onclick="guardarDia()">Guardar día</button>
+        <div class="hint">Feriado y Personal son días neutros: no afectan tu racha.</div>
       </div>
     </div>
 
-    <!-- FLUJO SÍ OPERÉ: Durante + Después -->
+    <!-- FLUJO SÍ OPERÉ -->
     <div id="flujo-opere" class="hidden">
-
-    <!-- DURANTE -->
-    <div class="step-label">3 · Durante — la operación</div>
-    <div class="section active" id="s-durante">
-      <div id="ops">
-        <div class="op">
-          <div class="op-head"><strong>Operación 1</strong><span class="r">R: —</span></div>
-          <div class="field">
-            <label>Cuenta</label>
-            <div class="chips op-cuenta">
-              <span class="chip acct" onclick="pickOne(this)">Lucid Flex 0258</span>
-              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-            </div>
-          </div>
-          <div class="row">
-            <div class="field" style="flex:2">
-              <label>Activo</label>
-              <div class="chips op-activo">
-                <span class="chip" onclick="pickOne(this)">NQ</span>
-                <span class="chip" onclick="pickOne(this)">ES</span>
-                <span class="chip" onclick="pickOne(this)">Oro</span>
-                <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-              </div>
-            </div>
-            <div class="field" style="flex:1">
-              <label>Hora</label>
-              <input type="time" class="op-hora">
-            </div>
-          </div>
-          <div class="field">
-            <label>Setup</label>
-            <div class="chips op-setup">
-              <span class="chip" onclick="pick(this)">CRT</span>
-              <span class="chip" onclick="pick(this)">CHOCH</span>
-              <span class="chip" onclick="pick(this)">FVG</span>
-              <span class="chip" onclick="pick(this)">BOS / ruptura</span>
-              <span class="chip" onclick="pick(this)">Divergencia</span>
-              <span class="chip" onclick="pick(this)">Liquidez</span>
-              <span class="chip" onclick="pick(this)">Volumen</span>
-              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-            </div>
-          </div>
-          <div class="field">
-            <label>Razón técnica — explícala</label>
-            <textarea class="op-razon" placeholder="Qué viste, por qué entraste, cómo la gestionaste..."></textarea>
-          </div>
-          <div class="row">
-            <div class="field">
-              <label>Resultado</label>
-              <div class="seg op-resultado">
-                <span class="chip up" onclick="pickOne(this)">Ganó</span>
-                <span class="chip down" onclick="pickOne(this)">Perdió</span>
-                <span class="chip" onclick="pickOne(this)">BE</span>
-              </div>
-            </div>
-            <div class="field" style="max-width:110px">
-              <label>Ratio / R</label>
-              <input type="text" class="op-ratio" placeholder="+2 · -1 · 0">
-            </div>
-          </div>
-          <div class="field">
-            <label>Pantallazo del gráfico</label>
-            <input type="file" accept="image/*" class="op-captura" style="display:none" onchange="previsualizar(this)">
-            <div class="drop" onclick="this.previousElementSibling.click()">Toca para subir la captura</div>
-            <img class="op-preview" style="display:none;max-width:100%;border-radius:8px;margin-top:8px">
-            <div class="op-captura-estado hint" style="display:none"></div>
-          </div>
-          <div class="field">
-            <label>¿Rompí alguna regla?</label>
-            <div class="chips op-regla">
-              <span class="chip" onclick="pickOne(this)">Ninguna</span>
-              <span class="chip" onclick="pickOne(this)">Entré por FOMO</span>
-              <span class="chip" onclick="pickOne(this)">Cerré por miedo</span>
-              <span class="chip" onclick="pickOne(this)">Sobreoperación</span>
-              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-            </div>
-          </div>
-          <div class="field">
-            <label>Gestión de la operación</label>
-            <div class="chips op-gestion">
-              <span class="chip" onclick="pick(this)">Respeté SL y TP</span>
-              <span class="chip" onclick="pick(this)">Moví el SL</span>
-              <span class="chip" onclick="pick(this)">Aumenté el TP</span>
-              <span class="chip" onclick="pick(this)">Perseguí el precio</span>
-              <span class="chip" onclick="pick(this)">Cerré antes de tiempo</span>
-              <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-            </div>
-            <div class="hint">Cómo manejaste la operación una vez abierta.</div>
-          </div>
-        </div>
+      <div class="card card-purple" id="recordatorio" style="display:none">
+        <h3 style="color:#1a1226">📋 Recuerda tu plan de hoy</h3>
+        <div id="recordatorio-contenido" style="font-size:14px"></div>
       </div>
+
+      <div class="step-label">3 · Durante — la operación</div>
+      <div id="ops"></div>
       <button class="addop" onclick="addOp()">＋ Añadir operación</button>
-    </div>
 
-    <!-- DESPUES -->
-    <div class="step-label">4 · Después — retroalimentación</div>
-    <div class="section active" id="s-despues">
+      <div class="step-label">4 · Después — retroalimentación</div>
       <div class="card">
-        <h3>Retroalimentación</h3>
         <div class="row">
-          <div class="field">
-            <label>¿Respeté mi límite de pérdida diario?</label>
-            <div class="seg" id="f-limite">
-              <span class="chip up" onclick="pickOne(this)">Sí</span>
-              <span class="chip down" onclick="pickOne(this)">No</span>
-            </div>
-          </div>
-          <div class="field">
-            <label>¿Cumplí mi objetivo del día?</label>
-            <div class="seg" id="f-objetivo">
-              <span class="chip up" onclick="pickOne(this)">Sí</span>
-              <span class="chip" onclick="pickOne(this)">No</span>
-            </div>
-          </div>
+          <div class="field"><label>¿Respeté mi límite?</label>
+            <div class="seg" id="f-limite"><span class="chip up" onclick="pickOne(this)">Sí</span><span class="chip down" onclick="pickOne(this)">No</span></div></div>
+          <div class="field"><label>¿Cumplí objetivo?</label>
+            <div class="seg" id="f-objetivo"><span class="chip up" onclick="pickOne(this)">Sí</span><span class="chip" onclick="pickOne(this)">No</span></div></div>
         </div>
-        <div class="field">
-          <label>¿El sesgo estaba correcto? ¿Por qué?</label>
-          <textarea id="f-sesgo-ok"></textarea>
-        </div>
-        <div class="field">
-          <label>¿La entrada tenía razón técnica clara?</label>
-          <textarea id="f-entrada-ok"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Qué hice bien hoy?</label>
-          <textarea id="f-bien"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Qué mejoraré mañana? (una sola cosa concreta)</label>
-          <input type="text" id="f-mejorar" placeholder="Solo una cosa.">
-          <div class="hint">Esto es lo que te recibe mañana en el inicio.</div>
-        </div>
-        <div class="field">
-          <label>Estado emocional al cerrar</label>
-          <div class="chips" id="f-emocion-cierre">
-            <span class="chip" onclick="pick(this)">Calma</span>
-            <span class="chip" onclick="pick(this)">Frustración</span>
-            <span class="chip" onclick="pick(this)">Satisfacción</span>
-            <span class="chip" onclick="pick(this)">Cansancio</span>
+        <div class="field"><label>¿El sesgo estaba correcto? ¿Por qué?</label><textarea id="f-sesgo-ok"></textarea></div>
+        <div class="field"><label>¿La entrada tenía razón técnica?</label><textarea id="f-entrada-ok"></textarea></div>
+        <div class="field"><label>¿Qué hice bien hoy?</label><textarea id="f-bien"></textarea></div>
+        <div class="field"><label>¿Qué mejoraré mañana? (una sola cosa)</label><input type="text" id="f-mejorar" placeholder="Solo una cosa."></div>
+        <div class="field"><label>Estado emocional al cerrar</label>
+          <div class="chips" id="f-emo-cierre">
+            <span class="chip" onclick="pickOne(this)">Calma</span>
+            <span class="chip" onclick="pickOne(this)">Frustración</span>
+            <span class="chip" onclick="pickOne(this)">Satisfacción</span>
+            <span class="chip" onclick="pickOne(this)">Cansancio</span>
             <span class="chip add" onclick="addChip(this)">＋ Añadir</span>
-          </div>
-        </div>
-        <div class="field">
-          <label>Reencuadre del SL — ¿volverías a poner esta operación con la misma información?</label>
-          <textarea id="f-reencuadre"></textarea>
-        </div>
+          </div></div>
+        <div class="field"><label>Reencuadre del SL — ¿volverías a poner esta operación?</label><textarea id="f-reencuadre"></textarea></div>
       </div>
-      <button class="save" onclick="guardarDia()">Guardar día</button>
-    </div>
-    </div><!-- /flujo-opere -->
-  </div>
-
-  <!-- ===== VISTA PREGUNTAS ===== -->
-  <div id="view-preguntas" class="hidden">
-    <button class="back" onclick="go('home')">← Inicio</button>
-    <h1>Mis preguntas</h1>
-    <div class="sub">El espacio para interrogar tus operaciones. Anota la duda hoy; la conclusión, cuando la resuelvas.</div>
-    <div style="margin-top:18px">
-      <div class="q">
-        <div class="qt">¿Por qué cierro cuando el precio aún puede alcanzar más rangos?</div>
-        <div class="qa pending">Sin conclusión aún <span onclick="responder(this)" style="color:var(--accent);cursor:pointer;margin-left:6px">＋ agregar respuesta</span></div>
-      </div>
-      <div class="q">
-        <div class="qt">¿Dónde debo poner el SL cuando la entrada es apoyo en FVG: en la vela del FVG o estructural?</div>
-        <div class="qa">Conclusión: estructural cuando hay noticia cerca — el SL no se alcanza tan rápido.</div>
-      </div>
-      <div class="field" style="margin-top:6px">
-        <input type="text" placeholder="Escribe una nueva pregunta...">
-      </div>
-      <button class="addop" onclick="alert('En la app real: la pregunta se guarda y puedes ligarla a una operación concreta.')">＋ Añadir pregunta</button>
+      <button class="btn btn-lime" onclick="guardarDia()" style="font-size:16px;padding:17px">Guardar día</button>
     </div>
   </div>
 
-  <!-- ===== VISTA ESTADÍSTICAS ===== -->
-  <div id="view-stats" class="hidden">
-    <button class="back" onclick="go('home')">← Inicio</button>
+  <!-- ========== ESTADÍSTICAS ========== -->
+  <div class="view" id="v-stats">
     <h1>Tu progreso</h1>
-    <div class="sub">Cada registro te muestra quién eres como trader.</div>
-
+    <div class="sub">Tus patrones como trader. Sin dinero, solo proceso.</div>
     <div class="statnav">
-      <span class="statbtn on" onclick="stab('sem',this)">Semana</span>
-      <span class="statbtn" onclick="stab('mes',this)">Mes</span>
-      <span class="statbtn" onclick="stab('cta',this)">Cuentas</span>
+      <div class="statbtn on" onclick="periodo('sem',this)">Semana</div>
+      <div class="statbtn" onclick="periodo('mes',this)">Mes</div>
+      <div class="statbtn" onclick="periodo('tri',this)">Trimestre</div>
+      <div class="statbtn" onclick="periodo('ano',this)">Año</div>
     </div>
-
-    <!-- SEMANA -->
-    <div class="statview" id="st-sem">
-      <div style="display:flex;gap:12px">
-        <div class="card mini"><div class="big up" id="stat-plan">—</div><div class="cap">seguí mi plan</div></div>
-        <div class="card mini"><div class="big gold" id="stat-racha">—</div><div class="cap">racha (días)</div></div>
-        <div class="card mini"><div class="big" id="stat-dias">—</div><div class="cap">días registrados</div></div>
-      </div>
-      <div class="card">
-        <h3>Disciplina de la semana</h3>
-        <div class="week" id="stat-week"></div>
-        <div class="legend"><span><i class="dot ok"></i>seguí plan</span><span><i class="dot no"></i>rompí regla</span><span><i class="dot hold"></i>no operé (criterio)</span></div>
-      </div>
-      <div class="card">
-        <h3>Días con rutina previa completa</h3>
-        <div id="stat-rutina"><div class="hint">—</div></div>
-        <div class="hint" style="margin-top:10px">La rutina previa suele cambiar cómo operas. Vale la pena verla.</div>
-      </div>
-      <div class="card">
-        <h3>Setup que más usé esta semana</h3>
-        <div id="stat-setups"><div class="hint">—</div></div>
-      </div>
-      <div class="card">
-        <h3>Regla que más rompí esta semana</h3>
-        <div id="stat-regla"><div class="hint">—</div></div>
-      </div>
-      <div class="card">
-        <h3>Tu foco de la semana</h3>
-        <div id="stat-foco" class="hint">Lo que decidiste mejorar. Tenerlo presente ya es trabajarlo.</div>
-      </div>
-    </div>
-
-    <!-- MES -->
-    <div class="statview hidden" id="st-mes">
-      <div style="display:flex;gap:12px">
-        <div class="card mini"><div class="big up" id="mes-plan">—</div><div class="cap">seguí mi plan</div></div>
-        <div class="card mini"><div class="big gold" id="mes-dias">—</div><div class="cap">días activos</div></div>
-        <div class="card mini"><div class="big" id="mes-ops">—</div><div class="cap">operaciones</div></div>
-      </div>
-      <div class="card">
-        <h3>Tu disciplina, semana a semana</h3>
-        <div id="mes-semanas"><div class="hint">—</div></div>
-        <div class="hint" style="margin-top:12px">Tu disciplina semana a semana. Lo que importa es la tendencia.</div>
-      </div>
-      <div class="card">
-        <h3>Regla que más rompí este mes</h3>
-        <div id="mes-regla"><div class="hint">—</div></div>
-      </div>
-    </div>
-
-    <!-- CUENTAS -->
-    <div class="statview hidden" id="st-cta">
-      <div class="card">
-        <h3>Todas mis cuentas</h3>
-        <div id="lista-cuentas-stats"><div class="hint">Cargando...</div></div>
-      </div>
-    </div>
+    <div id="stats-cont"><div class="hint">Cargando...</div></div>
+    <button class="btn btn-outline" onclick="descargarExcel()" style="margin-top:6px">📊 Descargar Excel</button>
   </div>
 
-  <!-- ===== VISTA HISTORIAL ===== -->
-  <div id="view-historial" class="hidden">
-    <button class="back" onclick="go('home')">← Inicio</button>
-    <h1>Mi historial</h1>
-    <div class="sub">Tus días registrados. Los huecos son días hábiles sin registro.</div>
-
+  <!-- ========== PERFIL ========== -->
+  <div class="view" id="v-perfil">
+    <h1>Perfil</h1>
     <div class="card" style="margin-top:16px">
-      <div class="field">
-        <label>Consultar un día específico</label>
-        <input type="date" id="hist-fecha" onchange="verDia(this.value)">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div class="avatar" id="perf-avatar" style="width:56px;height:56px;font-size:22px">K</div>
+        <div><div style="font-size:18px;font-weight:700" id="perf-nombre">trader</div>
+          <div class="hint" id="perf-email"></div></div>
       </div>
-      <div id="hist-detalle"></div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="editarNombre()">✎ Modificar nombre</button>
     </div>
 
-    <div class="step-label">Últimos días</div>
-    <div id="hist-lista"><div class="hint">Cargando...</div></div>
+    <div class="card">
+      <div class="listrow">
+        <div><strong>Tema</strong><div class="hint">Claro u oscuro</div></div>
+        <button class="btn btn-ghost btn-sm" id="btn-tema" onclick="cambiarTema()">🌙 Oscuro</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Mis cuentas</h3>
+      <div id="lista-cuentas"><div class="hint">Cargando...</div></div>
+      <button class="addop" style="margin-top:12px;margin-bottom:0" onclick="toggleFormCuenta()">＋ Crear cuenta</button>
+      <div id="form-cuenta" class="hidden" style="margin-top:14px">
+        <div class="row">
+          <div class="field"><label>Nombre</label><input type="text" id="cta-nombre" placeholder="Ej. Lucid Flex 0258"></div>
+          <div class="field"><label>Tipo</label><select id="cta-tipo"><option value="challenge">Challenge</option><option value="fondeada">Fondeada</option></select></div>
+        </div>
+        <div class="field"><label>Rol <span onclick="agregarRol()" style="color:var(--purple);cursor:pointer;font-size:12px">＋ nuevo rol</span></label>
+          <select id="cta-rol"><option>Proteger</option><option>Construir</option><option>Escalar</option></select></div>
+        <div class="field"><label>Punto de partida (opcional)</label>
+          <textarea id="cta-partida" placeholder="Ej. La recibí con avance, me faltan pocos días para pasarla."></textarea>
+          <div class="hint">Nota de contexto. Los números los ves en tu bróker.</div></div>
+        <button class="btn btn-lime" onclick="crearCuenta()">Guardar cuenta</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Zona de peligro</h3>
+      <div class="hint" style="margin-bottom:12px">Reiniciar borra datos permanentemente.</div>
+      <label style="display:flex;gap:9px;align-items:center;font-size:14px;margin:7px 0"><input type="checkbox" id="rb-dias" style="width:auto"> Días y operaciones</label>
+      <label style="display:flex;gap:9px;align-items:center;font-size:14px;margin:7px 0"><input type="checkbox" id="rb-preguntas" style="width:auto"> Preguntas</label>
+      <label style="display:flex;gap:9px;align-items:center;font-size:14px;margin:7px 0"><input type="checkbox" id="rb-cuentas" style="width:auto"> Cuentas</label>
+      <button class="btn btn-danger" style="margin-top:10px" onclick="reiniciarBitacora()">Borrar lo seleccionado</button>
+    </div>
+
+    <button class="btn btn-ghost btn-sm" style="width:100%" onclick="logout()">Cerrar sesión</button>
+  </div>
+
+  <!-- ========== NAV INFERIOR ========== -->
+  <div class="nav">
+    <button class="on" data-v="inicio" onclick="nav('inicio',this)">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Inicio</button>
+    <button data-v="preguntas" onclick="nav('preguntas',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3 2.5c-.7.3-1 .8-1 1.5"/><line x1="12" y1="17" x2="12" y2="17"/></svg>Preguntas</button>
+    <button class="fab" onclick="irRegistro()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+    <button data-v="stats" onclick="nav('stats',this)">
+      <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 15l4-4 4 3 8-8"/><path d="M16 6h5v5"/></svg>Progreso</button>
+    <button data-v="perfil" onclick="nav('perfil',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
   </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 <script>
-  function toggleAjustes(){
-    document.getElementById('ajustes').classList.toggle('hidden');
+/* =========================================================
+   CONEXIÓN — reemplaza estos dos valores por los tuyos
+   ========================================================= */
+const SUPABASE_URL = "https://fujpyzebrxzboxirtjem.supabase.co";
+const SUPABASE_KEY = "sb_publishable_UtkvwRST222Zv6h7-QfvpA_CYD_gGk5";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const REDIRECT_URL = "https://journal-trading-puce.vercel.app/";
+
+/* ===================== AUTENTICACIÓN ===================== */
+async function loginConGoogle(){
+  const {error}=await db.auth.signInWithOAuth({provider:"google",options:{redirectTo:REDIRECT_URL}});
+  if(error) alert("No se pudo iniciar sesión: "+error.message);
+}
+async function logout(){ await db.auth.signOut(); location.reload(); }
+async function usuarioActual(){ const {data}=await db.auth.getUser(); return data?.user||null; }
+
+async function protegerApp(){
+  const user=await usuarioActual();
+  const login=document.getElementById("pantalla-login");
+  const app=document.getElementById("app");
+  if(user){
+    login.style.display="none"; app.style.display="block";
+    // nombre: localStorage primero, si no pide una vez
+    let nombre=localStorage.getItem("bt_nombre");
+    if(!nombre){
+      const meta=user.user_metadata?.full_name;
+      nombre=prompt("¿Cómo te llamas?", meta?meta.split(" ")[0]:"") || (meta?meta.split(" ")[0]:"trader");
+      try{localStorage.setItem("bt_nombre",nombre);}catch(e){}
+    }
+    ponerNombre(nombre);
+    document.getElementById("perf-email").textContent=user.email||"";
+    cargarInicio(); cargarPreguntas(); cargarCuentas();
+  }else{
+    login.style.display="flex"; app.style.display="none";
   }
-  function cambiarTema(){
-    const body=document.body;
-    const claro = body.getAttribute('data-tema')==='claro';
-    if(claro){
-      body.removeAttribute('data-tema');
-      document.getElementById('btn-tema').textContent='🌙 Oscuro';
+}
+function ponerNombre(n){
+  document.getElementById("ini-nombre").textContent=n;
+  document.getElementById("perf-nombre").textContent=n;
+  const ini=(n||"T").trim().charAt(0).toUpperCase();
+  document.getElementById("ini-avatar").textContent=ini;
+  document.getElementById("perf-avatar").textContent=ini;
+}
+function editarNombre(){
+  const actual=localStorage.getItem("bt_nombre")||"";
+  const n=prompt("Tu nombre:",actual);
+  if(n){ try{localStorage.setItem("bt_nombre",n);}catch(e){} ponerNombre(n); }
+}
+db.auth.onAuthStateChange(()=>protegerApp());
+document.addEventListener("DOMContentLoaded",()=>{
+  // tema guardado
+  try{ if(localStorage.getItem("bt_tema")==="claro"){document.documentElement.setAttribute("data-tema","claro");actualizarBtnTema();} }catch(e){}
+  protegerApp();
+});
+
+/* ===================== NAVEGACIÓN ===================== */
+function nav(v,btn){
+  document.querySelectorAll(".view").forEach(e=>e.classList.remove("active"));
+  document.getElementById("v-"+v).classList.add("active");
+  document.querySelectorAll(".nav button[data-v]").forEach(b=>b.classList.remove("on"));
+  if(btn) btn.classList.add("on");
+  window.scrollTo(0,0);
+  if(v==="stats") cargarStats();
+  if(v==="preguntas") cargarPreguntas();
+  if(v==="perfil") cargarCuentas();
+  if(v==="inicio") cargarInicio();
+}
+function irRegistro(){
+  nav("registro",null);
+  document.querySelectorAll(".nav button[data-v]").forEach(b=>b.classList.remove("on"));
+  prepararRegistro();
+}
+function irPerfil(){
+  nav("perfil",null);
+  document.querySelector('.nav button[data-v="perfil"]').classList.add("on");
+}
+
+/* ===================== TEMA ===================== */
+function cambiarTema(){
+  const claro=document.documentElement.getAttribute("data-tema")==="claro";
+  if(claro){document.documentElement.removeAttribute("data-tema");try{localStorage.setItem("bt_tema","oscuro");}catch(e){}}
+  else{document.documentElement.setAttribute("data-tema","claro");try{localStorage.setItem("bt_tema","claro");}catch(e){}}
+  actualizarBtnTema();
+}
+function actualizarBtnTema(){
+  const claro=document.documentElement.getAttribute("data-tema")==="claro";
+  const b=document.getElementById("btn-tema"); if(b) b.textContent=claro?"☀️ Claro":"🌙 Oscuro";
+}
+
+/* ===================== CHIPS ===================== */
+function pick(el){ el.classList.toggle("on"); }
+function pickOne(el){ el.parentElement.querySelectorAll(".chip").forEach(c=>c.classList.remove("on")); el.classList.add("on"); }
+function addChip(el){
+  const t=prompt("Nueva opción:"); if(!t) return;
+  const c=document.createElement("span"); c.textContent=t;
+  const single=el.parentElement.querySelector('.chip[onclick*="pickOne"]')!==null;
+  c.className="chip"+(el.parentElement.querySelector(".acct")?" acct":"");
+  c.onclick=single?function(){pickOne(c)}:function(){pick(c)};
+  el.parentElement.insertBefore(c,el);
+}
+function editarChips(link){
+  const cont=link.closest(".card").querySelector(".chips");
+  const ed=cont.classList.toggle("editando");
+  link.textContent=ed?"✓ listo":"✎ editar";
+  cont.querySelectorAll(".chip:not(.add)").forEach(c=>{
+    if(ed){
+      if(c.querySelector(".x")) return;
+      c._orig=c.onclick; c.onclick=null;
+      const e=document.createElement("span");e.className="x";e.textContent=" ✎";e.style.cssText="margin-left:6px;cursor:pointer;color:var(--purple)";
+      e.onclick=function(ev){ev.stopPropagation();const nv=prompt("Nuevo:",c.firstChild.textContent.trim());if(nv)c.firstChild.textContent=nv;};
+      const x=document.createElement("span");x.className="x";x.textContent=" ✕";x.style.cssText="margin-left:4px;cursor:pointer;color:var(--down)";
+      x.onclick=function(ev){ev.stopPropagation();c.remove();};
+      c.appendChild(e);c.appendChild(x);
     }else{
-      body.setAttribute('data-tema','claro');
-      document.getElementById('btn-tema').textContent='☀️ Claro';
+      c.querySelectorAll(".x").forEach(x=>x.remove());
+      c.onclick=c._orig||function(){pick(c)};
+    }
+  });
+}
+function chipsMarcados(cont){ if(!cont)return[]; return Array.from(cont.querySelectorAll(".chip.on")).map(c=>c.firstChild.textContent.trim()).filter(Boolean); }
+function chipUnico(cont){ const m=chipsMarcados(cont); return m.length?m[0]:null; }
+function val(id){ const e=document.getElementById(id); return e?e.value.trim():null; }
+function selVal(id){ const e=document.getElementById(id); return e?e.value:null; }
+
+/* ===================== INICIO ===================== */
+async function cargarInicio(){
+  const {data:dias}=await db.from("dias").select("*").order("fecha",{ascending:false});
+  const {data:ops}=await db.from("operaciones").select("dia_id,regla_rota");
+  const opsPorDia={}; (ops||[]).forEach(o=>{if(o.regla_rota&&o.regla_rota!=="Ninguna")opsPorDia[o.dia_id]=true;});
+  const D=dias||[];
+  document.getElementById("ini-registros").textContent=D.length;
+  // racha (saltando neutros)
+  let racha=0;
+  for(const d of D){ if(esNeutro(d))continue; if(cumplio(d,opsPorDia))racha++; else break; }
+  document.getElementById("ini-racha").textContent=racha;
+  // foco de ayer
+  const conFoco=D.find(d=>d.que_mejorare);
+  if(conFoco) document.getElementById("ini-foco").textContent='"'+conFoco.que_mejorare+'"';
+}
+function esNeutro(d){ return d.opero===false && (d.motivo_no_opero==="Personal (citas, familia)"||d.motivo_no_opero==="Día feriado"); }
+function cumplio(d,opsPorDia){ if(d.opero===false)return true; return !opsPorDia[d.id]; }
+
+/* ===================== REGISTRO ===================== */
+function prepararRegistro(){
+  const f=new Date();
+  document.getElementById("reg-fecha").textContent=f.toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"long"})+" · NQ Futures";
+  cargarCuentasEnOps();
+  if(document.querySelectorAll("#ops .op").length===0) addOp();
+}
+function opere(si,el){
+  el.parentElement.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+  el.classList.add("on");
+  document.getElementById("noopere").classList.toggle("hidden",si);
+  document.getElementById("flujo-opere").classList.toggle("hidden",!si);
+  if(si) llenarRecordatorio();
+}
+function llenarRecordatorio(){
+  const g=id=>{const e=document.getElementById(id);return e?e.value.trim():"";};
+  const s=selVal("f-sesgo"), htf=g("f-htf"), ltf=g("f-ltf"), e1=g("f-esc1"), e2=g("f-esc2");
+  let h="";
+  if(s)h+='<div style="margin:3px 0"><b>Sesgo:</b> '+s+'</div>';
+  if(htf)h+='<div style="margin:3px 0"><b>HTF:</b> '+htf+'</div>';
+  if(ltf)h+='<div style="margin:3px 0"><b>LTF:</b> '+ltf+'</div>';
+  if(e1)h+='<div style="margin:3px 0"><b>Escenario 1:</b> '+e1+'</div>';
+  if(e2)h+='<div style="margin:3px 0"><b>Escenario 2:</b> '+e2+'</div>';
+  const cont=document.getElementById("recordatorio");
+  if(h){document.getElementById("recordatorio-contenido").innerHTML=h;cont.style.display="block";}
+  else cont.style.display="none";
+}
+let opN=0;
+function opHTML(){
+  opN++;
+  return `<div class="op">
+    <div class="op-head"><strong>Operación ${opN}</strong></div>
+    <div class="field"><label>Cuenta</label><div class="chips op-cuenta"><span class="chip add" onclick="addChip(this)">＋ Añadir</span></div></div>
+    <div class="row">
+      <div class="field"><label>Activo <span onclick="editarChips(this)" style="color:var(--purple);cursor:pointer;font-size:12px">✎</span></label>
+        <div class="chips op-activo"><span class="chip" onclick="pickOne(this)">NQ</span><span class="chip" onclick="pickOne(this)">ES</span><span class="chip" onclick="pickOne(this)">Oro</span><span class="chip add" onclick="addChip(this)">＋</span></div></div>
+      <div class="field" style="max-width:120px"><label>Hora</label><input type="time" class="op-hora"></div>
+    </div>
+    <div class="field"><label>Dirección</label>
+      <div class="seg op-dir"><span class="chip up" onclick="pickOne(this)">Long</span><span class="chip down" onclick="pickOne(this)">Short</span></div></div>
+    <div class="field"><label>Setup <span onclick="editarChips(this)" style="color:var(--purple);cursor:pointer;font-size:12px">✎</span></label>
+      <div class="chips op-setup"><span class="chip" onclick="pick(this)">CRT</span><span class="chip" onclick="pick(this)">CHOCH</span><span class="chip" onclick="pick(this)">FVG</span><span class="chip" onclick="pick(this)">BOS</span><span class="chip" onclick="pick(this)">Divergencia</span><span class="chip" onclick="pick(this)">Liquidez</span><span class="chip" onclick="pick(this)">Volumen</span><span class="chip add" onclick="addChip(this)">＋</span></div></div>
+    <div class="field"><label>Razón técnica</label><textarea class="op-razon" placeholder="Qué viste, por qué entraste..."></textarea></div>
+    <div class="row">
+      <div class="field" style="max-width:130px"><label>Contratos</label><input type="number" class="op-contratos" placeholder="2" min="1"></div>
+      <div class="field"><label>¿Aumenté?</label><div class="seg op-aumento"><span class="chip" onclick="pickAumento(this)">No</span><span class="chip up" onclick="pickAumento(this)">Sí</span></div></div>
+      <div class="field op-total-wrap" style="max-width:120px;display:none"><label>Total</label><input type="number" class="op-total" placeholder="4" min="1"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Resultado</label><div class="seg op-resultado"><span class="chip up" onclick="pickOne(this)">Ganó</span><span class="chip down" onclick="pickOne(this)">Perdió</span><span class="chip" onclick="pickOne(this)">BE</span></div></div>
+      <div class="field" style="max-width:100px"><label>Ratio R</label><input type="text" class="op-ratio" placeholder="+2"></div>
+    </div>
+    <div class="field"><label>Captura del gráfico</label>
+      <input type="file" accept="image/*" class="op-captura" style="display:none" onchange="previewOp(this)">
+      <div class="drop" onclick="this.previousElementSibling.click()">📷 Subir captura</div>
+      <img class="op-preview" style="display:none;max-width:100%;border-radius:14px;margin-top:8px"></div>
+    <div class="field"><label>¿Rompí alguna regla?</label>
+      <div class="chips op-regla"><span class="chip" onclick="pickOne(this)">Ninguna</span><span class="chip" onclick="pickOne(this)">Entré por FOMO</span><span class="chip" onclick="pickOne(this)">Cerré por miedo</span><span class="chip" onclick="pickOne(this)">Sobreoperación</span><span class="chip add" onclick="addChip(this)">＋</span></div></div>
+    <div class="field"><label>Gestión</label>
+      <div class="chips op-gestion"><span class="chip" onclick="pick(this)">Respeté SL y TP</span><span class="chip" onclick="pick(this)">Moví el SL</span><span class="chip" onclick="pick(this)">Aumenté el TP</span><span class="chip" onclick="pick(this)">Perseguí el precio</span><span class="chip" onclick="pick(this)">Cerré antes</span></div></div>
+  </div>`;
+}
+function addOp(){
+  const div=document.createElement("div"); div.innerHTML=opHTML();
+  document.getElementById("ops").appendChild(div.firstElementChild);
+  cargarCuentasEnOps();
+}
+function pickAumento(el){
+  el.parentElement.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+  el.classList.add("on");
+  const w=el.closest(".row").querySelector(".op-total-wrap");
+  if(w) w.style.display=(el.textContent.trim()==="Sí")?"block":"none";
+}
+function previewOp(input){ const f=input.files[0];if(!f)return; const img=input.parentElement.querySelector(".op-preview"); img.src=URL.createObjectURL(f);img.style.display="block"; }
+async function cargarCuentasEnOps(){
+  const {data}=await db.from("cuentas").select("id,nombre").order("creada_en");
+  if(!data)return;
+  document.querySelectorAll(".op-cuenta").forEach(cont=>{
+    const add=cont.querySelector(".add"); cont.innerHTML="";
+    data.forEach(c=>{const ch=document.createElement("span");ch.className="chip acct";ch.dataset.id=c.id;ch.textContent=c.nombre;ch.onclick=()=>pickOne(ch);cont.appendChild(ch);});
+    if(add)cont.appendChild(add);
+  });
+}
+function hoyISO(){ return new Date().toISOString().slice(0,10); }
+
+async function guardarDia(){
+  const user=await usuarioActual(); if(!user){alert("Inicia sesión.");return;}
+  const opero = document.querySelector("#v-registro .chip.up.on") && document.getElementById("flujo-opere").classList.contains("hidden")===false ? true
+    : (document.getElementById("noopere").classList.contains("hidden")?null:false);
+  const dia={
+    user_id:user.id, fecha:hoyISO(),
+    rutina:chipsMarcados(document.getElementById("f-rutina")),
+    sesgo_dia:selVal("f-sesgo"), estructura:selVal("f-estructura"),
+    htf:val("f-htf"), ltf:val("f-ltf"),
+    escenario_principal:val("f-esc1"), escenario_secundario:val("f-esc2"),
+    emocion_inicio:chipUnico(document.getElementById("f-emo-ini")),
+    opero:opero
+  };
+  if(opero===false){
+    dia.motivo_no_opero=chipUnico(document.getElementById("f-motivo"));
+    dia.nota_no_opero=val("f-nota-no");
+  }else if(opero===true){
+    dia.respeto_limite_perdida=segSiNo("f-limite");
+    dia.cumplio_objetivo=segSiNo("f-objetivo");
+    dia.sesgo_correcto=val("f-sesgo-ok"); dia.entrada_clara=val("f-entrada-ok");
+    dia.que_hice_bien=val("f-bien"); dia.que_mejorare=val("f-mejorar");
+    dia.emocion_cierre=chipUnico(document.getElementById("f-emo-cierre")); dia.reencuadre_sl=val("f-reencuadre");
+  }
+  const {data:diaG,error:eD}=await db.from("dias").upsert(dia,{onConflict:"user_id,fecha"}).select().single();
+  if(eD){alert("No se pudo guardar el día: "+eD.message);return;}
+  if(opero===true){
+    let orden=1;
+    for(const op of document.querySelectorAll("#ops .op")){
+      const ctaChip=op.querySelector(".op-cuenta .chip.on");
+      if(!ctaChip){continue;}
+      const oper={
+        user_id:user.id, dia_id:diaG.id, cuenta_id:ctaChip.dataset.id, orden:orden++,
+        activo:chipUnico(op.querySelector(".op-activo")),
+        direccion:chipUnico(op.querySelector(".op-dir")),
+        hora:op.querySelector(".op-hora")?.value||null,
+        setup:chipsMarcados(op.querySelector(".op-setup")),
+        razon_tecnica:op.querySelector(".op-razon")?.value.trim()||null,
+        contratos_entrada:parseInt(op.querySelector(".op-contratos")?.value)||null,
+        aumento:chipUnico(op.querySelector(".op-aumento"))==="Sí",
+        contratos_total:parseInt(op.querySelector(".op-total")?.value)||null,
+        resultado:mapRes(chipUnico(op.querySelector(".op-resultado"))),
+        ratio_r:parseFloat(op.querySelector(".op-ratio")?.value)||null,
+        regla_rota:chipUnico(op.querySelector(".op-regla")),
+        gestion:chipsMarcados(op.querySelector(".op-gestion"))
+      };
+      const fi=op.querySelector(".op-captura");
+      if(fi&&fi.files&&fi.files[0]){ const u=await subirCaptura(fi.files[0],user.id); if(u)oper.captura_url=u; }
+      await db.from("operaciones").insert(oper);
     }
   }
-  function previsualizar(input){
-    const f=input.files[0];
-    if(!f) return;
-    const img=input.parentElement.querySelector('.op-preview');
-    img.src=URL.createObjectURL(f);
-    img.style.display='block';
-  }
-  function go(v){
-    document.querySelectorAll('[id^=view-]').forEach(e=>e.classList.add('hidden'));
-    document.getElementById('view-'+v).classList.remove('hidden');
-    window.scrollTo(0,0);
-    if(v==='historial' && typeof cargarHistorial==='function') cargarHistorial();
-    if(v==='stats' && typeof cargarEstadisticas==='function') cargarEstadisticas();
-  }
-  function stab(v,el){
-    document.querySelectorAll('.statbtn').forEach(b=>b.classList.remove('on'));
-    el.classList.add('on');
-    document.querySelectorAll('.statview').forEach(s=>s.classList.add('hidden'));
-    document.getElementById('st-'+v).classList.remove('hidden');
-    if(v==='cta' && typeof listarCuentas==='function') listarCuentas();
-  }
-  function estado(sel){
-    const v=sel.value;
-    if(v!=='Activa') alert('En la app real: la cuenta pasa a "'+v+'" y se archiva en tu historial. No se borra — tu trayectoria queda registrada.');
-  }
-  function opere(si,el){
-    el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
-    el.classList.add('on');
-    document.getElementById('noopere').classList.toggle('hidden',si);
-    document.getElementById('flujo-opere').classList.toggle('hidden',!si);
-    const target=si?document.getElementById('flujo-opere'):document.getElementById('noopere');
-    setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'start'}),80);
-  }
-  function pick(el){ el.classList.toggle('on'); }         // multi
-  function pickOne(el){                                    // single dentro del grupo
-    el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
-    el.classList.add('on');
-  }
-  function editarNombre(){
-    const el=document.getElementById('nombre');
-    const t=prompt('Tu nombre:',el.textContent);
-    if(t) el.textContent=t;
-  }
-  function responder(link){
-    const t=prompt('Tu conclusión:');
-    if(t){const qa=link.parentElement;qa.classList.remove('pending');qa.textContent='Conclusión: '+t;}
-  }
-  function fraseDelDia(){
-    // ¿rompió alguna regla hoy? (mira los chips "on" del grupo de reglas)
-    let rompio=false, siguioplan=false;
-    document.querySelectorAll('#ops .chip.on').forEach(c=>{
-      const t=c.textContent.trim();
-      if(['Entré por FOMO','Cerré por miedo','Sobreoperación','Moví el SL','Perseguí el precio','Aumenté el TP','Cerré antes de tiempo'].includes(t)) rompio=true;
-      if(t==='Ninguna'||t==='Respeté SL y TP') siguioplan=true;
-    });
-    if(rompio) return 'Hoy rompiste una regla, y lo anotaste. Ver el error es la mitad del camino. Mañana, 1% mejor.';
-    if(siguioplan) return 'Seguiste tu plan hoy. Eso — no el resultado — es lo que te vuelve consistente. Bien hecho.';
-    return 'Día registrado. Cada anotación te conoce un poco más como trader.';
-  }
-  function toggleDel(contId,link){
-    const cont=document.getElementById(contId);
-    const editing=cont.classList.toggle('editing');
-    link.textContent=editing?'listo':'editar';
-    cont.querySelectorAll('.chip:not(.add)').forEach(c=>{
-      if(editing){
-        if(!c.querySelector('.x')){
-          const x=document.createElement('span');
-          x.className='x';x.textContent=' ✕';x.style.cssText='margin-left:6px;color:var(--down);cursor:pointer';
-          x.onclick=function(e){e.stopPropagation();c.remove();};
-          c.appendChild(x);c.onclick=null;
-        }
-      }else{
-        const x=c.querySelector('.x');if(x)x.remove();
-        c.onclick=function(){pick(c)};
-      }
-    });
-  }
-  function addChip(el){
-    const t=prompt('Nueva opción:');
-    if(!t) return;
-    const c=document.createElement('span');
-    c.textContent=t;
-    // ¿el grupo usa selección única? (cuenta, resultado, regla) o múltiple (setup, emoción)
-    const single=el.parentElement.querySelector('.chip[onclick*="pickOne"]')!==null;
-    c.className='chip'+(el.classList.contains('acct')||el.parentElement.querySelector('.acct')?' acct':'');
-    c.onclick=single?function(){pickOne(c)}:function(){pick(c)};
-    el.parentElement.insertBefore(c,el);
-  }
-  let opN=1;
-  function addOp(){
-    opN++;
-    const base=document.querySelector('.op');
-    const clone=base.cloneNode(true);
-    clone.querySelector('.op-head strong').textContent='Operación '+opN;
-    clone.querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'));
-    clone.querySelectorAll('textarea,input').forEach(c=>c.value='');
-    document.getElementById('ops').appendChild(clone);
-    clone.scrollIntoView({behavior:'smooth',block:'center'});
-  }
-  // fecha
-  const f=new Date();
-  document.getElementById('fecha-hoy').textContent=f.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})+' · NQ Futures · Sesión Nueva York';
-</script>
-</div><!-- /#app -->
+  alert(fraseDelDia());
+  limpiarRegistro();
+  nav("inicio",document.querySelector('.nav button[data-v="inicio"]'));
+}
+function segSiNo(id){ const c=document.getElementById(id).querySelector(".chip.on"); return c?c.textContent.trim()==="Sí":null; }
+function mapRes(t){ return t==="Ganó"?"gano":t==="Perdió"?"perdio":t==="BE"?"be":null; }
+function fraseDelDia(){
+  let rompio=false,plan=false;
+  document.querySelectorAll("#ops .chip.on").forEach(c=>{const t=c.firstChild.textContent.trim();
+    if(["Entré por FOMO","Cerré por miedo","Sobreoperación","Moví el SL","Perseguí el precio"].includes(t))rompio=true;
+    if(t==="Ninguna"||t==="Respeté SL y TP")plan=true;});
+  if(rompio) return "Hoy rompiste una regla, y la anotaste. Ver el error es la mitad del camino. Mañana, 1% mejor.";
+  if(plan) return "Seguiste tu plan hoy. Eso — no el resultado — es lo que te vuelve consistente. Bien hecho.";
+  return "Día registrado. Cada anotación te conoce mejor como trader.";
+}
+function limpiarRegistro(){
+  document.getElementById("ops").innerHTML=""; opN=0;
+  document.querySelectorAll("#v-registro .chip.on").forEach(c=>c.classList.remove("on"));
+  document.querySelectorAll("#v-registro input,#v-registro textarea").forEach(e=>e.value="");
+  document.getElementById("flujo-opere").classList.add("hidden");
+  document.getElementById("noopere").classList.add("hidden");
+}
+async function subirCaptura(file,uid){
+  try{
+    const ext=(file.name.split(".").pop()||"png").toLowerCase();
+    const ruta=uid+"/"+Date.now()+"."+ext;
+    const {error}=await db.storage.from("capturas").upload(ruta,file);
+    if(error){console.error(error.message);return null;}
+    const {data}=await db.storage.from("capturas").createSignedUrl(ruta,60*60*24*3650);
+    return data?.signedUrl||ruta;
+  }catch(e){return null;}
+}
 
-<!-- Login: librería + nuestros archivos (este orden) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/cuentas.js"></script>
-<script src="js/registro.js"></script>
-<script src="js/historial.js"></script>
-<script src="js/estadisticas.js"></script>
-<script src="js/reiniciar.js"></script>
+/* ===================== PREGUNTAS ===================== */
+function tabPreg(t,el){
+  document.querySelectorAll("#v-preguntas .statbtn").forEach(b=>b.classList.remove("on")); el.classList.add("on");
+  document.getElementById("preg-abiertas").classList.toggle("hidden",t!=="abiertas");
+  document.getElementById("preg-resueltas").classList.toggle("hidden",t!=="resueltas");
+}
+function previewPreg(input){ const f=input.files[0];if(!f)return; const img=document.getElementById("preg-preview"); img.src=URL.createObjectURL(f);img.style.display="block"; }
+async function cargarPreguntas(){
+  const {data,error}=await db.from("preguntas").select("*").order("creada_en",{ascending:false});
+  const ab=document.getElementById("preg-abiertas"), re=document.getElementById("preg-resueltas");
+  if(error){ab.innerHTML='<div class="hint">Error: '+error.message+'</div>';return;}
+  const abiertas=(data||[]).filter(q=>!q.conclusion), resueltas=(data||[]).filter(q=>q.conclusion);
+  ab.innerHTML=abiertas.length?abiertas.map(q=>pregHTML(q,false)).join(""):'<div class="hint">No tienes preguntas abiertas.</div>';
+  re.innerHTML=resueltas.length?resueltas.map(q=>pregHTML(q,true)).join(""):'<div class="hint">Aún no has resuelto preguntas.</div>';
+}
+function escH(t){ return String(t||"").replace(/[<>&]/g,s=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[s])); }
+function pregHTML(q,resuelta){
+  const img=q.imagen_url?'<img src="'+q.imagen_url+'" style="max-width:100%;border-radius:12px;margin:8px 0">':'';
+  const abajo=resuelta
+    ? '<div class="qa">✅ '+escH(q.conclusion)+'</div>'
+    : '<div class="qa pending"><span onclick="responderPregunta(\''+q.id+'\')" style="color:var(--purple);cursor:pointer">＋ agregar respuesta</span></div>';
+  return '<div class="q"><div class="qt">'+escH(q.pregunta)+
+    ' <span onclick="editarPregunta(\''+q.id+'\',\''+escH(q.pregunta).replace(/'/g,"\\'")+'\')" style="color:var(--purple);cursor:pointer;font-size:12px">✎</span>'+
+    ' <span onclick="eliminarPregunta(\''+q.id+'\')" style="color:var(--down);cursor:pointer;font-size:12px">🗑</span></div>'+img+abajo+'</div>';
+}
+async function crearPregunta(){
+  const inp=document.getElementById("nueva-pregunta"); const t=inp.value.trim();
+  if(!t){alert("Escribe una pregunta.");return;}
+  const user=await usuarioActual(); if(!user)return;
+  let imagen_url=null; const fi=document.getElementById("preg-imagen");
+  if(fi&&fi.files&&fi.files[0]) imagen_url=await subirCaptura(fi.files[0],user.id);
+  const {error}=await db.from("preguntas").insert({user_id:user.id,pregunta:t,imagen_url});
+  if(error){alert("No se pudo guardar: "+error.message);return;}
+  inp.value=""; if(fi)fi.value=""; const pv=document.getElementById("preg-preview");if(pv){pv.style.display="none";pv.src="";}
+  cargarPreguntas();
+}
+async function responderPregunta(id){ const t=prompt("Tu conclusión / respuesta:"); if(!t)return;
+  const {error}=await db.from("preguntas").update({conclusion:t}).eq("id",id); if(error){alert(error.message);return;} cargarPreguntas(); }
+async function editarPregunta(id,actual){ const t=prompt("Editar pregunta:",actual); if(!t||t===actual)return;
+  const {error}=await db.from("preguntas").update({pregunta:t}).eq("id",id); if(error){alert(error.message);return;} cargarPreguntas(); }
+async function eliminarPregunta(id){ if(!confirm("¿Eliminar esta pregunta?"))return;
+  const {error}=await db.from("preguntas").delete().eq("id",id); if(error){alert(error.message);return;} cargarPreguntas(); }
+async function descargarPreguntasWord(){
+  if(typeof docx==="undefined"){alert("La librería de Word no cargó. Recarga.");return;}
+  const {data}=await db.from("preguntas").select("*").order("creada_en",{ascending:true});
+  if(!data||!data.length){alert("No tienes preguntas para exportar.");return;}
+  const {Document,Packer,Paragraph,TextRun,HeadingLevel,ImageRun}=docx;
+  const hijos=[new Paragraph({text:"Preguntas para mi mentora",heading:HeadingLevel.HEADING_1}),
+    new Paragraph({text:new Date().toLocaleDateString("es-CO"),spacing:{after:300}})];
+  let n=1;
+  for(const q of data){
+    hijos.push(new Paragraph({children:[new TextRun({text:n+". "+q.pregunta,bold:true,size:26})],spacing:{before:200,after:100}}));
+    if(q.imagen_url){try{const r=await fetch(q.imagen_url);const b=await r.arrayBuffer();
+      hijos.push(new Paragraph({children:[new ImageRun({data:b,transformation:{width:450,height:260}})],spacing:{after:100}}));}catch(e){}}
+    if(q.conclusion) hijos.push(new Paragraph({children:[new TextRun({text:"Mi conclusión: "+q.conclusion,italics:true})],spacing:{after:100}}));
+    hijos.push(new Paragraph({text:"Respuesta: _______________________________________________",spacing:{after:300}})); n++;
+  }
+  const doc=new Document({sections:[{children:hijos}]});
+  const blob=await Packer.toBlob(doc); const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="preguntas_"+hoyISO()+".docx";a.click();URL.revokeObjectURL(url);
+}
+
+/* ===================== CUENTAS ===================== */
+function toggleFormCuenta(){ document.getElementById("form-cuenta").classList.toggle("hidden"); }
+function agregarRol(){ const t=prompt("Nuevo rol:"); if(!t)return; const s=document.getElementById("cta-rol");const o=document.createElement("option");o.textContent=t;s.appendChild(o);s.value=t; }
+async function crearCuenta(){
+  const nombre=val("cta-nombre"),tipo=selVal("cta-tipo"),rol=selVal("cta-rol"),partida=val("cta-partida");
+  if(!nombre){alert("Escribe un nombre.");return;}
+  const user=await usuarioActual(); if(!user)return;
+  const {error}=await db.from("cuentas").insert({user_id:user.id,nombre,tipo,rol,punto_partida:partida,estado:"activa"});
+  if(error){alert("No se pudo guardar: "+error.message);return;}
+  document.getElementById("cta-nombre").value="";document.getElementById("cta-partida").value="";
+  document.getElementById("form-cuenta").classList.add("hidden");
+  cargarCuentas();
+}
+async function cargarCuentas(){
+  const {data}=await db.from("cuentas").select("*").order("creada_en");
+  const cont=document.getElementById("lista-cuentas"); if(!cont)return;
+  if(!data||!data.length){cont.innerHTML='<div class="hint">Aún no has creado cuentas.</div>';return;}
+  const act=data.filter(c=>["activa","fondeada","con_retiros"].includes(c.estado));
+  const cer=data.filter(c=>["pasada","quemada"].includes(c.estado));
+  const nF=data.filter(c=>c.estado==="fondeada"||c.estado==="con_retiros").length;
+  const nA=data.filter(c=>c.estado==="activa").length, nQ=data.filter(c=>c.estado==="quemada").length;
+  let h=`<div style="display:flex;gap:10px;margin-bottom:14px">
+    <div class="mini"><div class="big" style="color:var(--up)">${nF}</div><div class="cap">fondeadas</div></div>
+    <div class="mini"><div class="big" style="color:var(--gold)">${nA}</div><div class="cap">activas</div></div>
+    <div class="mini"><div class="big" style="color:var(--down)">${nQ}</div><div class="cap">quemadas</div></div></div>`;
+  h+=grupoCuentas("Activas",act,false); if(cer.length)h+=grupoCuentas("Cerradas",cer,true);
+  cont.innerHTML=h;
+}
+function grupoCuentas(titulo,ctas,aten){
+  if(!ctas.length)return titulo==="Activas"?'<div class="hint">No tienes cuentas activas.</div>':"";
+  let h='<div class="hint" style="margin:10px 0 4px">'+titulo+'</div>';
+  h+=ctas.map(c=>`<div class="listrow" ${aten?'style="opacity:.55"':''}>
+    <div><strong>${escH(c.nombre)}</strong><div class="hint">${c.tipo}${c.rol?' · '+escH(c.rol):''} · ${c.estado}${c.punto_partida?'<br>📍 '+escH(c.punto_partida):''}</div></div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <select onchange="cambiarEstado('${c.id}',this.value)" style="width:auto;padding:6px 8px;font-size:12px">
+        <option ${c.estado==='activa'?'selected':''}>activa</option><option ${c.estado==='fondeada'?'selected':''}>fondeada</option>
+        <option ${c.estado==='con_retiros'?'selected':''}>con_retiros</option><option ${c.estado==='pasada'?'selected':''}>pasada</option>
+        <option ${c.estado==='quemada'?'selected':''}>quemada</option></select>
+      <span onclick="renombrarCuenta('${c.id}','${escH(c.nombre).replace(/'/g,"\\'")}')" style="cursor:pointer;color:var(--purple)">✎</span>
+      <span onclick="eliminarCuenta('${c.id}','${escH(c.nombre).replace(/'/g,"\\'")}')" style="cursor:pointer;color:var(--down)">🗑</span>
+    </div></div>`).join("");
+  return h;
+}
+async function cambiarEstado(id,e){ const {error}=await db.from("cuentas").update({estado:e}).eq("id",id); if(error)alert(error.message); else cargarCuentas(); }
+async function renombrarCuenta(id,actual){ const n=prompt("Nuevo nombre:",actual); if(!n||n===actual)return; const {error}=await db.from("cuentas").update({nombre:n}).eq("id",id); if(error)alert(error.message);else cargarCuentas(); }
+async function eliminarCuenta(id,nombre){ if(!confirm('¿Eliminar "'+nombre+'"? Sus operaciones también se borran.'))return;
+  await db.from("operaciones").delete().eq("cuenta_id",id); await db.from("retiros").delete().eq("cuenta_id",id);
+  const {error}=await db.from("cuentas").delete().eq("id",id); if(error)alert(error.message);else cargarCuentas(); }
+
+/* ===================== ESTADÍSTICAS ===================== */
+let periodoActual="sem";
+function periodo(p,el){ periodoActual=p; document.querySelectorAll("#v-stats .statbtn").forEach(b=>b.classList.remove("on")); el.classList.add("on"); cargarStats(); }
+function rangoInicio(p){
+  const d=new Date();
+  if(p==="sem"){const x=new Date(d);const dow=(d.getDay()+6)%7;x.setDate(d.getDate()-dow);x.setHours(0,0,0,0);return x;}
+  if(p==="mes"){return new Date(d.getFullYear(),d.getMonth(),1);}
+  if(p==="tri"){const q=Math.floor(d.getMonth()/3)*3;return new Date(d.getFullYear(),q,1);}
+  if(p==="ano"){return new Date(d.getFullYear(),0,1);}
+  return new Date(0);
+}
+async function cargarStats(){
+  const cont=document.getElementById("stats-cont"); cont.innerHTML='<div class="hint">Cargando...</div>';
+  const {data:dias}=await db.from("dias").select("*").order("fecha",{ascending:false});
+  const {data:ops}=await db.from("operaciones").select("*");
+  const D=dias||[], O=ops||[];
+  const opsPorDia={}; O.forEach(o=>{(opsPorDia[o.dia_id]=opsPorDia[o.dia_id]||[]).push(o);});
+  const rompePorDia={}; O.forEach(o=>{if(o.regla_rota&&o.regla_rota!=="Ninguna")rompePorDia[o.dia_id]=true;});
+  const ini=rangoInicio(periodoActual);
+  const Df=D.filter(d=>new Date(d.fecha+"T00:00:00")>=ini);
+  const idsF=new Set(Df.map(d=>d.id));
+  const Of=O.filter(o=>idsF.has(o.dia_id));
+  const cuentan=Df.filter(d=>!esNeutro(d));
+  const conPlan=cuentan.filter(d=>cumplio(d,rompePorDia)).length;
+  const pct=cuentan.length?Math.round(100*conPlan/cuentan.length):0;
+  let racha=0; for(const d of D){if(esNeutro(d))continue;if(cumplio(d,rompePorDia))racha++;else break;}
+  const conRutina=Df.filter(d=>(d.rutina||[]).length>=6).length;
+
+  let h=`<div style="display:flex;gap:10px;margin-bottom:14px">
+    <div class="mini"><div class="big" style="color:var(--up)">${pct}%</div><div class="cap">siguió el plan</div></div>
+    <div class="mini"><div class="big" style="color:var(--gold)">${racha}</div><div class="cap">racha</div></div>
+    <div class="mini"><div class="big">${Df.length}</div><div class="cap">días</div></div></div>`;
+
+  // semáforo (últimos 7 del periodo o de la semana)
+  if(periodoActual==="sem"){
+    h+='<div class="card"><h3>Disciplina de la semana</h3><div class="week">'+semaforo(D,rompePorDia)+'</div></div>';
+  }
+  // días registrados con etiqueta
+  h+='<div class="card"><h3>Días registrados</h3>'+listaDias(Df.slice(0,10))+'</div>';
+  // setups
+  h+='<div class="card"><h3>Setup más utilizado</h3>'+barras(contar(Of,"setup",true))+'</div>';
+  // horas acierto/desacierto
+  h+='<div class="card"><h3>Horas — mayor acierto</h3>'+horasWin(Of,true)+'<h3 style="margin-top:14px">Horas — mayor desacierto</h3>'+horasWin(Of,false)+'</div>';
+  // emociones
+  const emo=Df.map(d=>d.emocion_cierre).filter(Boolean).concat(Df.map(d=>d.emocion_inicio).filter(Boolean));
+  h+='<div class="card"><h3>Emociones más constantes</h3>'+barrasArr(contarLista(emo))+'</div>';
+  // reglas rotas
+  h+='<div class="card"><h3>Reglas rotas</h3>'+reglaTop(Of)+'</div>';
+  // rutina
+  h+=`<div class="card"><h3>Días con rutina completa</h3><div class="bar"><span>Rutina completa</span><em>${conRutina} de ${Df.length}</em></div><div class="track"><div style="width:${Df.length?Math.round(100*conRutina/Df.length):0}%"></div></div></div>`;
+  // patrón de ganancia (síntesis)
+  h+='<div class="card card-lime"><h3 style="color:var(--lime-dark)">🧠 Patrón de ganancia</h3><div style="font-size:14px;color:var(--lime-dark)">'+patronGanancia(Of)+'</div></div>';
+
+  cont.innerHTML=h;
+}
+function semaforo(D,rompe){
+  const nombres=["D","L","M","X","J","V","S"]; const hoy=new Date();
+  const lun=new Date(hoy);const dow=(hoy.getDay()+6)%7;lun.setDate(hoy.getDate()-dow);
+  let h="";
+  for(let i=0;i<7;i++){const f=new Date(lun);f.setDate(lun.getDate()+i);const iso=f.toISOString().slice(0,10);
+    const d=D.find(x=>x.fecha===iso); let cls="off";
+    if(d){ if(d.opero===false)cls=esNeutro(d)?"off":"hold"; else cls=cumplio(d,rompe)?"ok":"no"; }
+    h+=`<div style="flex:1;text-align:center"><span class="dot ${cls}">${nombres[f.getDay()]}</span></div>`;}
+  return h;
+}
+function listaDias(D){
+  if(!D.length)return '<div class="hint">Sin días en este periodo.</div>';
+  return D.map(d=>{
+    let et,col;
+    if(d.opero===false){et="No operé · "+(d.motivo_no_opero||"");col="var(--gold)";}
+    else if(d.opero===true){et="Operé";col="var(--up)";}
+    else{et="Solo análisis";col="var(--muted)";}
+    return '<div class="listrow"><div><strong>'+d.fecha+'</strong></div><span class="tag" style="background:var(--surface2);color:'+col+'">'+et+'</span></div>';
+  }).join("");
+}
+function contar(ops,campo,arr){ const c={}; ops.forEach(o=>{const v=o[campo]; if(arr&&Array.isArray(v))v.forEach(x=>{if(x)c[x]=(c[x]||0)+1;}); else if(v)c[v]=(c[v]||0)+1;}); return Object.entries(c).sort((a,b)=>b[1]-a[1]); }
+function contarLista(arr){ const c={}; arr.forEach(v=>{if(v)c[v]=(c[v]||0)+1;}); return Object.entries(c).sort((a,b)=>b[1]-a[1]); }
+function barras(pares){ if(!pares.length)return '<div class="hint">Sin datos.</div>'; const max=pares[0][1];
+  return pares.slice(0,5).map(([k,n])=>`<div class="bar"><span>${escH(k)}</span><em>${n}</em></div><div class="track"><div style="width:${Math.round(100*n/max)}%"></div></div>`).join(""); }
+function barrasArr(pares){ return barras(pares); }
+function horasWin(ops,acierto){
+  const ph={}; ops.forEach(o=>{if(!o.hora||!o.resultado)return;const h=o.hora.slice(0,2)+":00";ph[h]=ph[h]||{g:0,t:0};ph[h].t++;if(o.resultado==="gano")ph[h].g++;});
+  let arr=Object.entries(ph).map(([h,v])=>[h,Math.round(100*v.g/v.t),v.t]);
+  if(!arr.length)return '<div class="hint">Registra operaciones con hora.</div>';
+  arr.sort((a,b)=>acierto?b[1]-a[1]:a[1]-b[1]);
+  return arr.slice(0,3).map(([h,p,t])=>`<div class="bar"><span>${h}</span><em>${p}% (${t} ops)</em></div><div class="track"><div style="width:${p}%;background:${acierto?'var(--up)':'var(--down)'}"></div></div>`).join("");
+}
+function reglaTop(ops){ const rotas=ops.filter(o=>o.regla_rota&&o.regla_rota!=="Ninguna");
+  if(!rotas.length)return '<div class="hint">Ninguna regla rota. ¡Bien!</div>';
+  const p=contar(rotas,"regla_rota",false); return '<div style="font-size:15px">'+escH(p[0][0])+' — '+p[0][1]+(p[0][1]===1?' vez':' veces')+'</div>'+barras(p); }
+function patronGanancia(ops){
+  const g=ops.filter(o=>o.resultado==="gano"), p=ops.filter(o=>o.resultado==="perdio");
+  if(ops.length<3) return "Registra más operaciones para ver tus patrones. Con pocos datos aún no hay conclusiones fiables.";
+  const setupGana=contar(g,"setup",true), setupPierde=contar(p,"setup",true);
+  const horaGana=contar(g.filter(o=>o.hora).map(o=>({h:o.hora.slice(0,2)+":00"})),"h",false);
+  let txt="";
+  if(setupGana.length) txt+="Tu setup más ganador es "+setupGana[0][0]+". ";
+  if(setupPierde.length) txt+="Cuidado con "+setupPierde[0][0]+", aparece en tus pérdidas. ";
+  const conRegla=p.filter(o=>o.regla_rota&&o.regla_rota!=="Ninguna").length;
+  if(conRegla>0) txt+="Buena parte de tus pérdidas coincide con romper una regla — la disciplina es tu mayor palanca de ganancia. ";
+  if(!txt) txt="Sigue registrando: pronto verás qué setups y horas suben tus ganancias y cuáles las reducen.";
+  return txt;
+}
+async function descargarExcel(){
+  if(typeof XLSX==="undefined"){alert("La librería de Excel no cargó. Recarga.");return;}
+  const {data:dias}=await db.from("dias").select("*").order("fecha");
+  const {data:ops}=await db.from("operaciones").select("*");
+  const {data:ctas}=await db.from("cuentas").select("*");
+  const nc={};(ctas||[]).forEach(c=>nc[c.id]=c.nombre); const fd={};(dias||[]).forEach(d=>fd[d.id]=d.fecha);
+  const fDias=(dias||[]).map(d=>({Fecha:d.fecha,Sesgo:d.sesgo_dia,Estructura:d.estructura,HTF:d.htf,LTF:d.ltf,
+    Operó:d.opero===true?"Sí":(d.opero===false?"No":""),Motivo:d.motivo_no_opero,
+    "Qué mejoraré":d.que_mejorare,"Emoción cierre":d.emocion_cierre}));
+  const fOps=(ops||[]).map(o=>({Fecha:fd[o.dia_id]||"",Cuenta:nc[o.cuenta_id]||"",Activo:o.activo,Dirección:o.direccion,
+    Hora:o.hora,Setup:(o.setup||[]).join(", "),"Contratos":o.contratos_entrada,Aumentó:o.aumento?"Sí":"No",
+    "Total":o.contratos_total,Resultado:o.resultado,R:o.ratio_r,"Regla":o.regla_rota,"Gestión":(o.gestion||[]).join(", ")}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(fDias),"Días");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(fOps),"Operaciones");
+  XLSX.writeFile(wb,"bitacora_"+hoyISO()+".xlsx");
+}
+
+/* ===================== REINICIAR ===================== */
+async function reiniciarBitacora(){
+  const bd=document.getElementById("rb-dias").checked, bp=document.getElementById("rb-preguntas").checked, bc=document.getElementById("rb-cuentas").checked;
+  if(!bd&&!bp&&!bc){alert("Marca al menos una cosa.");return;}
+  const items=[]; if(bd)items.push("días y operaciones");if(bp)items.push("preguntas");if(bc)items.push("cuentas");
+  if(prompt("Vas a borrar PARA SIEMPRE: "+items.join(", ")+".\nEscribe BORRAR para confirmar:")!=="BORRAR"){alert("Cancelado.");return;}
+  const user=await usuarioActual(); if(!user)return; const uid=user.id;
+  async function borra(t){const {error}=await db.from(t).delete().eq("user_id",uid);if(error)throw new Error(t+": "+error.message);}
+  try{
+    if(bp||bd)await borra("preguntas");
+    if(bd||bc)await borra("operaciones");
+    if(bd)await borra("dias");
+    if(bc){await borra("retiros");await borra("cuentas");}
+    alert("Listo. Empiezas en limpio."); location.reload();
+  }catch(e){ alert("No se pudo borrar todo: "+e.message+"\n\nRevisa permisos de borrado (RLS) en Supabase."); }
+}
+</script>
 </body>
 </html>
